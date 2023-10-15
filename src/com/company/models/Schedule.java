@@ -1,16 +1,21 @@
 package com.company.models;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class Schedule {
-    public List<ClassTiming> getClassTimings() {
-        return classTimings;
+    private ClassTiming classTimings;
+    private String location;
+
+    public Schedule(ClassTiming classTimings, String location) {
+        this.classTimings = classTimings;
+        this.location = location;
     }
 
     public String getLocation() {
         return location;
     }
 
-    private List<ClassTiming> classTimings;
-    private String location;
+    public ClassTiming getClassTimings() {
+        return classTimings;
+    }
 }

@@ -1,8 +1,24 @@
 package com.company.models;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class Course {
+    private int numOfCredits;
+    private String name;
+    private String department;
+    private String description;
+    private ArrayList<Semester> offeredInSemesters;
+    private ArrayList<Class> classes;
+
+    public Course(String courseName, String department, String description, int numOfCredits) {
+        this.name = courseName;
+        this.department = department;
+        this.description = description;
+        this.numOfCredits = numOfCredits;
+        this.offeredInSemesters = new ArrayList<>();
+        this.classes = new ArrayList<>();
+    }
+
     public String getName() {
         return name;
     }
@@ -27,27 +43,11 @@ public class Course {
         this.description = description;
     }
 
-    public Schedule getSchedule() {
-        return schedule;
-    }
-
-    public void setSchedule(Schedule schedule) {
-        this.schedule = schedule;
-    }
-
-    public String getProfessor() {
-        return professor;
-    }
-
-    public void setProfessor(String professor) {
-        this.professor = professor;
-    }
-
-    public List<Semester> getOfferedInSemesters() {
+    public ArrayList<Semester> getOfferedInSemesters() {
         return offeredInSemesters;
     }
 
-    public void setOfferedInSemesters(List<Semester> offeredInSemesters) {
+    public void setOfferedInSemesters(ArrayList<Semester> offeredInSemesters) {
         this.offeredInSemesters = offeredInSemesters;
     }
 
@@ -55,17 +55,39 @@ public class Course {
         offeredInSemesters.add(semester);
     }
 
-    private String professor;
-    //private List<Student> studentsEnrolled;
-    private Schedule schedule;
-    private String name;
-    private String department;
-    private String description;
-    private List<Semester> offeredInSemesters;
+    public ArrayList<Class> getClasses() {
+        return classes;
+    }
 
-    public Course(String courseName, String department, String description){
-        this.name = courseName;
-        this.department = department;
-        this.description = description;
+    public void addClass(Class newClass) {
+        classes.add(newClass);
+    }
+
+    public int getNumOfCredits() {
+        return numOfCredits;
+    }
+
+    public void setNumOfCredits(int numOfCredits) {
+        this.numOfCredits = numOfCredits;
+    }
+
+    public Semester findSemesterByName(String semesterName) {
+        for (Semester semester : offeredInSemesters) {
+            if (semester.getName().equals(semesterName)) {
+                return semester;
+            }
+        }
+        return null;
+    }
+
+    public Class findClassByStudent(Student student) {
+        for (Class class1 : classes) {
+            for (StudentGrade studentGrade : class1.getStudentCourseEnrollment().getStudentGrades()) {
+                if (studentGrade.getStudent().equals(student)) {
+                    return class1;
+                }
+            }
+        }
+        return null;
     }
 }

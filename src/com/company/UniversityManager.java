@@ -28,7 +28,7 @@ public class UniversityManager {
         universities.add(university);
     }
 
-    public University findUniverisityByName(String universityName){
+    public University findUniversityByName(String universityName) {
         for (University university : universities) {
             if (university.getName().equals(universityName)) {
                 return university;
@@ -37,3 +37,4 @@ public class UniversityManager {
         return null;
     }
 }
+

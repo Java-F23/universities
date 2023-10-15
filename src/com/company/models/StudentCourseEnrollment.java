@@ -1,36 +1,19 @@
 package com.company.models;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class StudentCourseEnrollment {
-    private Course course;
+    private Class studentClass;
 
-    public Course getCourse() {
-        return course;
+    public ArrayList<StudentGrade> getStudentGrades() {
+        return studentGrades;
     }
 
-    public void setCourse(Course course) {
-        this.course = course;
+    private ArrayList<StudentGrade> studentGrades = new ArrayList<>();
+
+    //enroll student in course
+    public void enrollStudent(Student student) {
+        StudentGrade studentGrade = new StudentGrade( student,studentClass, "N/A", false);
+        studentGrades.add(studentGrade);
     }
-
-    public Semester getSemester() {
-        return semester;
-    }
-
-    public void setSemester(Semester semester) {
-        this.semester = semester;
-    }
-
-    public void setStudentsEnrolled(List<Student> studentsEnrolled) {
-        this.studentsEnrolled = studentsEnrolled;
-    }
-
-    public List<Student> getStudentsEnrolled() {
-        return studentsEnrolled;
-    }
-
-    private Semester semester;
-
-    private List<Student> studentsEnrolled;
-
 }
