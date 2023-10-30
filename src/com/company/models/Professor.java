@@ -7,9 +7,9 @@ import java.util.ArrayList;
 public class Professor {
     private String name;
     private int professorID;
+    private String password;
     private String universityName;
     private String department;
-    private ArrayList<Class> classesTaught;
 
     public int getProfessorID() {
         return professorID;

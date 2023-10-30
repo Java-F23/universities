@@ -7,9 +7,10 @@ import java.util.Iterator;
 
 public class Administrator {
     private int adminID;
+    private String password;
     private String universityName;
 
-    public Administrator(String universityName) {
+    public Administrator(String universityName, int adminID, String password) {
         this.universityName = universityName;
     }
 
@@ -24,33 +25,29 @@ public class Administrator {
     }
 
     //Admins can add a section to a specific course
-    public void addClass(University university, String courseName, String semesterName, int professorID, int maxClassCapacity, Schedule schedule) {
+    public String addClass(University university, String courseName, String semesterName, int professorID, int maxClassCapacity, Schedule schedule) {
         try {
             Course course = university.findCourseByName(courseName);
             Semester semester = university.findSemesterByName(semesterName);
             Professor professor = university.findProfessorByID(professorID);
 
             if (course == null) {
-                System.out.println("Course does not exist");
-                return;
+                return "Course does not exist";
             }
             if (semester == null) {
-                System.out.println("Semester does not exist");
-                return;
+                return "Semester does not exist";
             }
             if (professor == null) {
-                System.out.println("Professor does not exist");
-                return;
+                return "Professor does not exist";
             }
 
             int sectionNumber = 0;
             for (Class class1 : course.getClasses()) {
                 if (class1.getSemester().getName().equals(semesterName)) {
                     sectionNumber = class1.getSectionNumber();
-                    System.out.println("Able to add class to semester: " + semesterName);
-                }else {
-                    System.out.println("Created first section for the course: " + courseName);
-                    sectionNumber = 1;
+                    return "Able to add class to semester: " + semesterName;
+                } else {
+                    return "Created first section for the course: " + courseName;
                 }
             }
 
@@ -59,12 +56,15 @@ public class Administrator {
             Class newClass = new Class(course, sectionNumber, semester, professor, maxClassCapacity, schedule);
             course.addClass(newClass);
             university.addClass(newClass, course);
+
+            return "Class added successfully";
         } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
+            return "An error occurred: " + e.getMessage();
         }
     }
 
-    public void updateCourse(University university, String oldCourseName, String newCourseName, String department, String description) {
+
+    public String updateCourse(University university, String oldCourseName, String newCourseName, String department, String description) {
         try {
             boolean foundCourse = false;
             for (Course course : university.getCourses()) {
@@ -73,16 +73,18 @@ public class Administrator {
                     course.setDepartment(department);
                     course.setDescription(description);
                     foundCourse = true;
-                    System.out.println("Course updated");
+                    return "Course updated";
                 }
             }
 
             if (!foundCourse) {
-                System.out.println("Course not found");
+                return "Course not found";
             }
         } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
+            return "An error occurred: " + e.getMessage();
         }
+
+        return ""; // Return an empty string if no specific message is returned
     }
 
     public void addProfessor(University university, String professorName, String department) {
@@ -152,7 +154,7 @@ public class Administrator {
     }
 
 
-    public void editCapacity(University university, String courseName, String semester, int capacity, int sectionNumber) {
+    public String editCapacity(University university, String courseName, String semester, int capacity, int sectionNumber) {
         try {
             boolean courseExists = false;
 
@@ -162,51 +164,21 @@ public class Administrator {
                     for (Class class1 : course.getClasses()) {
                         if (class1.getSectionNumber() == sectionNumber && class1.getSemester().getName().equals(semester)) {
                             class1.setMaxClassCapacity(capacity);
-                            System.out.println("Capacity updated");
+                            return "Capacity updated";
                         }
                     }
                 }
             }
-        } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
-        }
-    }
 
-
-    public class ReportGenerator {
-        public static void generateStudentPerformanceReport(ArrayList<Student> students) {
-            try {
-                // Generate a report header
-                System.out.println("=== Student Performance Report ===");
-                if (students == null) {
-                    System.err.println("Error: Student list is null.");
-                    return;
-                }
-                System.out.println("Total Students: " + students.size());
-                System.out.println("Student Name\t\tCourse\t\t\tGrade\tAttendance\tAbsence");
-
-                // Iterate through each student and their grades
-                for (Student student : students) {
-                    if (student == null || student.getAcademicTranscript() == null) {
-                        System.err.println("Error: Missing data for a student or student grade.");
-                        continue;  // Skip to the next student if data is missing
-                    }
-                    for (StudentGrade studentGrade : student.getAcademicTranscript().getStudentGrades()) {
-                        String studentName = student.getName();
-                        String courseName = studentGrade.getStudentClass().getCourse().getName();
-                        String grade = studentGrade.getGrade();
-                        int attendance = studentGrade.getAttendance();
-                        int absence = studentGrade.getAbsence();
-
-                        // Print student performance information with fixed column widths
-                        System.out.printf("%-15s %-25s %-10s %-10d %-10d%n", studentName, courseName, grade, attendance, absence);
-                    }
-                }
-            } catch (NullPointerException e) {
-                // Handle any unexpected NullPointerExceptions
-                System.err.println("Error: An unexpected NullPointerException occurred.");
+            if (!courseExists) {
+                return "Course does not exist";
             }
+
+            return "Section not found";
+        } catch (Exception e) {
+            return "An error occurred: " + e.getMessage();
         }
     }
+
 
 }

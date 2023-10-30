@@ -3,10 +3,13 @@ package com.company.models;
 import com.company.UniversityManager;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 public class Student {
     private int studentID;
     private String name;
+    private String password;
     private String universityName;
     private AcademicTranscript academicTranscript;
     private ArrayList<Course> favoriteCourses;
@@ -44,119 +47,10 @@ public class Student {
         }
         return favoriteCourses;
     }
-    //Students can access a list of available courses, displaying course names and departments.
-    public ArrayList<Course> getAvailableCourses(University university, String semester) {
-        ArrayList<Course> availableCourses = new ArrayList<>();
-
-        try {
-            boolean semesterFound = false;
-
-            // Check if the provided semester is valid
-            for (Semester sem : university.getSemesters()) {
-                if (sem.getName().equals(semester)) {
-                    semesterFound = true;
-                    break;
-                }
-            }
-
-            if (!semesterFound) {
-                System.out.println("The provided semester is not valid.");
-                return availableCourses; // Return an empty list of available courses
-            }
-
-            boolean courseFound = false;
-            for (Course course : university.getCourses()) {
-                boolean courseAdded = false; // Flag to track if the course has been added
-                for (Semester semester1 : course.getOfferedInSemesters()) {
-                    if (semester1.getName().equals(semester)) {
-                        courseFound = true; // At least one course found
-                        if (!courseAdded) { // Check if the course hasn't been added yet
-                            availableCourses.add(course);
-                            courseAdded = true; // Set the flag to true to mark the course as added
-                            System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n");
-                        }
-                    }
-                }
-            }
-
-            if (!courseFound) {
-                System.out.println("No courses are offered in the provided semester.");
-            }
-        } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
-        }
-        return availableCourses;
-    }
-
-    //"Students can search for courses using filters like department and professor.
-    //The system displays matching courses."
-    public ArrayList<Course> searchCourseByDepartment(University university, String department) {
-        ArrayList<Course> matchingCourses = new ArrayList<>();
-        try {
-            for (Course course : university.getCourses()) {
-                if (course.getDepartment().equals(department)) {
-                    matchingCourses.add(course);
-                    System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n");
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
-        }
-        return matchingCourses;
-    }
-
-    public ArrayList<Course> searchCourseByProfessor(University university, String professorName) {
-        ArrayList<Course> matchingCourses = new ArrayList<>();
-        for (Course course : university.getCourses()) {
-            for (Class aClass : course.getClasses()) {
-                try {
-                    if (aClass.getProfessor().getName().equals(professorName)) {
-                        System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n");
-                        matchingCourses.add(course);
-                        break;
-                    }
-                } catch (NullPointerException e) {
-                    System.err.println("Error: Professor name is null for class in course " + course.getName());
-                }
-            }
-        }
-
-        return matchingCourses;
-    }
-
-    //Students can access a detailed page for each course, displaying course descriptions and schedules.
-    public void getCourseDetails(University university, String courseName) {
-        try {
-            for (Course course : university.getCourses()) {
-                if (course.getName().equals(courseName)) {
-                    System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n");
-                    System.out.println("The course description is " + course.getDescription() + "\n");
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
-        }
-    }
-
-    //Students can access the course schedule for a specific semester, including class timings and locations.
-    public void getCourseSchedule(University university, String semester) {
-        try {
-            for (Course course : university.getCourses()) {
-                for (Class class1 : course.getClasses()) {
-                    if (class1.getSemester().getName().equals(semester)) {
-                        System.out.println("The course name is " + course.getName() + ": \n");
-                        System.out.println("The semester is " + class1.getSemester().getName() + ", the class timings are " +  class1.getSchedule().getClassTimings().getDayOfWeek() + " " + class1.getSchedule().getClassTimings().getTime() + ", and the location is " + class1.getSchedule().getLocation() + "\n");
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
-        }
-    }
 
     //"Students can mark courses as favorites.
     //Favorited courses should be easily accessible"
-    public void addCourseToFavorites(University university, String courseName) {
+    public String addCourseToFavorites(University university, String courseName) {
         try {
             boolean courseExists = false;
             boolean isCourseAlreadyFavorited = false;
@@ -164,6 +58,7 @@ public class Student {
             for (Course course : favoriteCourses) {
                 if (course.getName().equals(courseName)) {
                     isCourseAlreadyFavorited = true;
+                    break;
                 }
             }
 
@@ -172,21 +67,29 @@ public class Student {
                     if (course.getName().equals(courseName)) {
                         courseExists = true;
                         favoriteCourses.add(course);
-                        System.out.println("Course added to favorites");
+                        return "Course added to favorites";
                     }
                 }
             } else {
                 if (courseExists)
-                    System.out.println("Course is already favorited");
+                    return "Course is already favorited";
                 else
-                    System.out.println("Course does not exist");
+                    return "Course does not exist";
             }
+        } catch (NoSuchElementException e) {
+            return "Course does not exist in the university.";
+        } catch (IllegalArgumentException e) {
+            return "Invalid argument provided: " + e.getMessage();
+        } catch (UnsupportedOperationException e) {
+            return "Operation not supported on the favoriteCourses collection.";
         } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
+            return "An error occurred: " + e.getMessage();
         }
+        return "An error occurred.";
     }
 
-    public void removeCourseFromFavorites(University university, String courseName) {
+
+    public String removeCourseFromFavorites(University university, String courseName) {
         try {
             boolean courseExists = false;
             boolean isCourseAlreadyFavorited = false;
@@ -202,21 +105,22 @@ public class Student {
                     if (course.getName().equals(courseName)) {
                         courseExists = true;
                         favoriteCourses.remove(course);
-                        System.out.println("Course removed from favorites");
+                        return "Course removed from favorites";
                     }
                 }
             } else {
                 if (courseExists)
-                    System.out.println("Course is not favorited");
+                    return "Course is not favorited";
                 else
-                    System.out.println("Course does not exist");
+                    return "Course does not exist";
             }
         } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
+            return "An error occurred: " + e.getMessage();
         }
+        return "An error occurred.";
     }
 
-    public void enrollInCourse(University university, String courseName, String semesterName) {
+    public String enrollInCourse(University university, String courseName, String semesterName) {
         try {
             for (Course course : university.getCourses()) {
                 if (course.getName().equals(courseName)) {
@@ -224,15 +128,17 @@ public class Student {
                         if (class1.getSemester().getName().equals(semesterName)) {
                             if (!class1.isFull()) {
                                 class1.enrollStudent(this);
+                                return "Enrolled in " + courseName + " for " + semesterName;
                             } else {
-                                System.out.println("The class is full");
+                                return "The class is full";
                             }
                         }
                     }
                 }
             }
+            return "Course or semester not found";
         } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
+            return "An error occurred: " + e.getMessage();
         }
     }
 
@@ -278,16 +184,46 @@ public class Student {
 
     public void getGPA(University university) {
         try {
+            // Maintain a list of semesters and their corresponding grade points
+            List<String> semesters = new ArrayList<>();
+            List<Double> gpaList = new ArrayList();
+            List<Integer> courseCounts = new ArrayList(); // Maintain course counts for each semester
+
             for (StudentGrade grades : academicTranscript.getStudentGrades()) {
                 if (grades.isCompleted()) {
-                    System.out.println("The semester is " + grades.getStudentClass().getSemester().getName() +
-                            ", and the GPA is " + calculateGPAForStudentInSemester(grades.getStudentClass().getSemester().getName()) + "\n");
+                    Class studentClass = grades.getStudentClass();
+                    String semesterName = studentClass.getSemester().getName();
+                    double gradePoint = grades.getNumericalGrade();
+
+                    // Check if the semester is already in the list
+                    int index = semesters.indexOf(semesterName);
+                    if (index == -1) {
+                        // If the semester is not in the list, add it and the initial GPA
+                        semesters.add(semesterName);
+                        gpaList.add(gradePoint);
+                        courseCounts.add(1); // Initialize course count for this semester
+                    } else {
+                        // If the semester is already in the list, update the GPA and course count
+                        double currentGPA = gpaList.get(index);
+                        gpaList.set(index, currentGPA + gradePoint);
+                        courseCounts.set(index, courseCounts.get(index) + 1); // Increment course count
+                    }
                 }
+            }
+
+            // Calculate the final GPA for each semester and print the results
+            for (int i = 0; i < semesters.size(); i++) {
+                double gpa = gpaList.get(i);
+                int numberOfCourses = courseCounts.get(i);
+                double semesterGPA = gpa / numberOfCourses;
+                System.out.println("The semester is " + semesters.get(i) + ", and the GPA is " + semesterGPA);
             }
         } catch (Exception e) {
             System.out.println("An error occurred: " + e.getMessage());
         }
     }
+
+
 
     public void getHistoricalCourseSchedule(University university) {
         try {

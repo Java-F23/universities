@@ -65,6 +65,117 @@ public class University {
         return students;
     }
 
+    //Students can access a list of available courses, displaying course names and departments.
+    public ArrayList<Course> getAvailableCourses(String semester) {
+        ArrayList<Course> availableCourses = new ArrayList<>();
+
+        try {
+            boolean semesterFound = false;
+
+            // Check if the provided semester is valid
+            for (Semester sem : getSemesters()) {
+                System.out.println("The semester we're looping in is " + semester);
+                if (sem.getName().equals(semester)) {
+                    semesterFound = true;
+                    break;
+                }
+            }
+
+            if (!semesterFound) {
+                System.out.println("The semester is" + semester);
+                System.out.println("The provided semester is not valid.");
+                return availableCourses; // Return an empty list of available courses
+            }
+
+            boolean courseFound = false;
+            for (Course course : getCourses()) {
+                boolean courseAdded = false; // Flag to track if the course has been added
+                for (Semester semester1 : course.getOfferedInSemesters()) {
+                    if (semester1.getName().equals(semester)) {
+                        courseFound = true; // At least one course found
+                        if (!courseAdded) { // Check if the course hasn't been added yet
+                            availableCourses.add(course);
+                            courseAdded = true; // Set the flag to true to mark the course as added
+                            System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n");
+                        }
+                    }
+                }
+            }
+
+            if (!courseFound) {
+                System.out.println("No courses are offered in the provided semester.");
+            }
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
+        return availableCourses;
+    }
+
+    //"Students can search for courses using filters like department and professor.
+    //The system displays matching courses."
+    public ArrayList<Course> searchCourseByDepartment(String department) {
+        ArrayList<Course> matchingCourses = new ArrayList<>();
+        try {
+            for (Course course : getCourses()) {
+                if (course.getDepartment().equals(department)) {
+                    matchingCourses.add(course);
+                    System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
+        return matchingCourses;
+    }
+
+    public ArrayList<Course> searchCourseByProfessor(String professorName) {
+        ArrayList<Course> matchingCourses = new ArrayList<>();
+        for (Course course : getCourses()) {
+            for (Class aClass : course.getClasses()) {
+                try {
+                    if (aClass.getProfessor().getName().equals(professorName)) {
+                        System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n");
+                        matchingCourses.add(course);
+                        break;
+                    }
+                } catch (NullPointerException e) {
+                    System.err.println("Error: Professor name is null for class in course " + course.getName());
+                }
+            }
+        }
+
+        return matchingCourses;
+    }
+
+    //Students can access a detailed page for each course, displaying course descriptions and schedules.
+    public void getCourseDetails(String courseName) {
+        try {
+            for (Course course : getCourses()) {
+                if (course.getName().equals(courseName)) {
+                    System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n");
+                    System.out.println("The course description is " + course.getDescription() + "\n");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
+    }
+
+    //Students can access the course schedule for a specific semester, including class timings and locations.
+    public void getCourseSchedule(String semester) {
+        try {
+            for (Course course : getCourses()) {
+                for (Class class1 : course.getClasses()) {
+                    if (class1.getSemester().getName().equals(semester)) {
+                        System.out.println("The course name is " + course.getName() + ": \n");
+                        System.out.println("The semester is " + class1.getSemester().getName() + ", the class timings are " +  class1.getSchedule().getClassTimings().getDayOfWeek() + " " + class1.getSchedule().getClassTimings().getTime() + ", and the location is " + class1.getSchedule().getLocation() + "\n");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
+        }
+    }
     // Find professor by name
     public Professor findProfessorByName(String professorName) {
         for (Professor professor : professors) {
@@ -150,6 +261,16 @@ public class University {
             }
         }
         return null; // Student not found
+    }
+
+    //get course by name
+    public Course getCourseByName(String courseName) {
+        for (Course course : courses) {
+            if (course.getName().equals(courseName)) {
+                return course;
+            }
+        }
+        return null; // Course not found
     }
 
     public int getNewStudentID(){

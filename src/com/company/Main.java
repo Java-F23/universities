@@ -159,7 +159,7 @@ public class Main {
                     adminAction = scanner.nextInt();
                     scanner.nextLine(); // Consume the newline character
 
-                    Administrator admin = new Administrator(uniName1);
+                    Administrator admin = new Administrator(uniName1, 1001, "admin1234");
 
                     switch (adminAction) {
                         case 1:
@@ -273,7 +273,7 @@ public class Main {
                             break;
                         case 8:
                             // Generate Report - implement this logic
-                            Administrator.ReportGenerator reportGenerator = admin.new ReportGenerator();
+                            ReportGenerator reportGenerator = new ReportGenerator();
                             reportGenerator.generateStudentPerformanceReport(findUni.getStudents());
                             break;
                         case 9:
@@ -323,35 +323,35 @@ public class Main {
                             System.out.println("Enter the semester: ");
                             String semesterName4 = scanner.nextLine();
 
-                            ArrayList<Course> availableCourses = student.getAvailableCourses(findUni, semesterName4);
+                            ArrayList<Course> availableCourses = university.getAvailableCourses(semesterName4);
                             break;
                         case 2:
                             // View course by department - implement this logic
                             System.out.println("Enter the department: ");
                             String departmentName = scanner.nextLine();
 
-                            ArrayList<Course> coursesByDepartment = student.searchCourseByDepartment(findUni, departmentName);
+                            ArrayList<Course> coursesByDepartment = university.searchCourseByDepartment(departmentName);
                             break;
                         case 3:
                             // View course by professor - implement this logic
                             System.out.println("Enter the name of the professor: ");
                             String professorName3 = scanner.nextLine();
 
-                            ArrayList<Course> coursesByProfessor = student.searchCourseByProfessor(findUni, professorName3);
+                            ArrayList<Course> coursesByProfessor = university.searchCourseByProfessor(professorName3);
                             break;
                         case 4:
                             // Get course details - implement this logic
                             System.out.println("Enter the name of the course: ");
                             String courseName4 = scanner.nextLine();
 
-                            student.getCourseDetails(findUni, courseName4);
+                            university.getCourseDetails(courseName4);
                             break;
                         case 5:
                             // Get course schedule - implement this logic
                             System.out.println("Enter the semester: ");
                             String semesterName5 = scanner.nextLine();
 
-                            student.getCourseSchedule(findUni, semesterName5);
+                            university.getCourseSchedule(semesterName5);
                             break;
                         case 6:
                             // Favorite courses - implement this logic

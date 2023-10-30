@@ -48,19 +48,19 @@ class StudentTest {
 
     @Test
     public void testGetAvailableCourses() {
-        ArrayList<Course> availableCourses = student.getAvailableCourses(university, "Spring 2023");
+        ArrayList<Course> availableCourses = university.getAvailableCourses("Spring 2023");
         assertEquals(1, availableCourses.size());
     }
 
     @Test
     public void testSearchCourseByDepartment() {
-        ArrayList<Course> matchingCourses = student.searchCourseByDepartment(university, "Department 1");
+        ArrayList<Course> matchingCourses = university.searchCourseByDepartment( "Department 1");
         assertEquals(1, matchingCourses.size());
     }
 
     @Test
     public void testSearchCourseByProfessor() {
-        ArrayList<Course> matchingCourses = student.searchCourseByProfessor(university, "Professor 1");
+        ArrayList<Course> matchingCourses = university.searchCourseByProfessor( "Professor 1");
         assertEquals(1, matchingCourses.size());
     }
 
@@ -83,7 +83,7 @@ class StudentTest {
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
 
-        student.getCourseDetails(university, "Course 1");
+        university.getCourseDetails( "Course 1");
         String output = outContent.toString();
         assertTrue(output.contains("The course name is Course 1"));
         assertTrue(output.contains("and the department is Department 1"));
@@ -102,7 +102,7 @@ class StudentTest {
         //System.out.println("The course name is " + course.getName() + ": \n");
         // System.out.println("The semester is " + class1.getSemester().getName() + ", the class timings are " + class1.getSchedule().getClassTimings() + ", and the location is " + class1.getSchedule().getLocation() + "\n");
 
-        student.getCourseSchedule(university, "Spring 2023");
+        university.getCourseSchedule("Spring 2023");
         String output = outContent.toString();
         assertTrue(output.contains("The course name is Course 1"));
         assertTrue(output.contains("The semester is Spring 2023"));

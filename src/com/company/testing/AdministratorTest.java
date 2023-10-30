@@ -18,7 +18,7 @@ class AdministratorTest {
     @BeforeEach
     public void setup() {
         university = new University("Test University", "Test Location");
-        admin = new Administrator("Test University");
+            admin = new Administrator("Test University", 1001, "admin1234");
     }
 
     @AfterEach
