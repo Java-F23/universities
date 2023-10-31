@@ -74,7 +74,6 @@ public class University {
 
             // Check if the provided semester is valid
             for (Semester sem : getSemesters()) {
-                System.out.println("The semester we're looping in is " + semester);
                 if (sem.getName().equals(semester)) {
                     semesterFound = true;
                     break;
@@ -82,8 +81,6 @@ public class University {
             }
 
             if (!semesterFound) {
-                System.out.println("The semester is" + semester);
-                System.out.println("The provided semester is not valid.");
                 return availableCourses; // Return an empty list of available courses
             }
 
@@ -96,7 +93,6 @@ public class University {
                         if (!courseAdded) { // Check if the course hasn't been added yet
                             availableCourses.add(course);
                             courseAdded = true; // Set the flag to true to mark the course as added
-                            System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n");
                         }
                     }
                 }

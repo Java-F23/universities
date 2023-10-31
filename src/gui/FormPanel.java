@@ -1,8 +1,7 @@
 package gui;
 
 import com.company.models.*;
-
-import javax.swing.SwingUtilities;
+import gui.Student.StudentNavMenu;
 
 
 import javax.swing.*;
@@ -66,7 +65,6 @@ public class FormPanel extends JPanel {
 
         submitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Submit button clicked"); // Add this line
                 String id = idField.getText();
 
                 try {
@@ -79,8 +77,8 @@ public class FormPanel extends JPanel {
 
                     if (id.isEmpty() || password.isEmpty()) {
                         JOptionPane.showMessageDialog(null, "Please fill in all fields.", "Error", JOptionPane.ERROR_MESSAGE);
-                    } else if(!isAdmin&&(university.findStudentByID(idInt)==null || university.findProfessorByID(idInt)==null)){
-                        JOptionPane.showMessageDialog(null, "Invalid ID", "Error", JOptionPane.ERROR_MESSAGE);
+                    } else if(!isAdmin && university.findStudentByID(idInt)==null && university.findProfessorByID(idInt)==null){
+                        JOptionPane.showMessageDialog(null, "Invalid ID FF", "Error", JOptionPane.ERROR_MESSAGE);
                         //set fields to empty
                         idField.setText("");
                         passwordField.setText("");
@@ -95,10 +93,8 @@ public class FormPanel extends JPanel {
                             parentFrame.switchToPanel(parentFrame.getStudentHomePanel());
                             // Notify the listener that the student is set
                             if (studentSetListener != null) {
-                                System.out.println("studentSetListener is not null");
                                 studentSetListener.accept(student);
                             }else{
-                                System.out.println("studentSetListener is null");
                             }
                         } else if (id.startsWith("8")) {
                             userType = UserType.PROFESSOR;
@@ -169,8 +165,7 @@ public class FormPanel extends JPanel {
 class CustomButton extends JButton {
     public CustomButton(String text) {
         super(text);
-        setBackground(new Color(7, 164, 121));
-        setForeground(Color.WHITE);
+        setForeground(new Color(7, 164, 121));
         setFont(new Font("sansserif", Font.BOLD, 20));
         setCursor(new Cursor(Cursor.HAND_CURSOR));
         setFocusPainted(false);

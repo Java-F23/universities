@@ -96,7 +96,7 @@ public class Administrator {
         }
     }
 
-    public void removeProfessor(University university, String professorName) {
+    public boolean removeProfessor(University university, String professorName) {
         try {
             boolean foundProfessor = false;
             Iterator<Professor> professorIterator = university.getProfessors().iterator();
@@ -106,18 +106,22 @@ public class Administrator {
                     professorIterator.remove();
                     foundProfessor = true;
                     System.out.println("Professor removed");
+                    return true;
                 }
             }
 
             if (!foundProfessor) {
                 System.out.println("Professor not found");
+                return false;
             }
         } catch (Exception e) {
             System.out.println("An error occurred: " + e.getMessage());
+            return false;
         }
+        return false;
     }
 
-    public void enrollStudent(University university, String studentName, String courseName, String semester) {
+    public String enrollStudent(University university, String studentName, String courseName, String semester) {
         try {
             boolean courseExists = false;
             boolean isStudentAlreadyEnrolled = false;
@@ -135,7 +139,7 @@ public class Administrator {
                         if (class1.getSemester().getName().equals(semester)) {
                             if (!class1.isFull()) {
                                 class1.enrollStudent(student);
-                                return;  // Enrollment successful
+                                return "Enrollment successful";
                             } else {
                                 throw new IllegalStateException("Class is full");
                             }
@@ -149,8 +153,9 @@ public class Administrator {
             }
         } catch (Exception e) {
             // Log or handle the exception as needed
-            System.out.println("An error occurred: " + e.getMessage());
+            return "An error occurred: " + e.getMessage();
         }
+        return ""; // Return an empty string if no specific message is returned
     }
 
 

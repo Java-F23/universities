@@ -11,6 +11,9 @@ public class Professor {
     private String universityName;
     private String department;
 
+    public String getDepartment() {
+        return department;
+    }
     public int getProfessorID() {
         return professorID;
     }
