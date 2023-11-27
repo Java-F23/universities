@@ -13,6 +13,7 @@ public class StudentHomePanel extends JPanel {
     private landing app;
     private StudentNavMenu studentNavMenu;
     private JPanel currentPanel;
+    JLabel welcomeLabel;
 
     public StudentHomePanel(landing app, StudentNavMenu studentNavMenu, Student student) {
         this.app = app;
@@ -22,7 +23,7 @@ public class StudentHomePanel extends JPanel {
         setLayout(new GridBagLayout());
 
         // Welcome message
-        JLabel welcomeLabel = new JLabel("Welcome to UniTrack!");
+        welcomeLabel = new JLabel("Welcome to UniTrack!");
         welcomeLabel.setFont(new Font("sansserif", Font.BOLD, 40));
 
         // Create GridBagConstraints to center the welcome message

@@ -59,7 +59,7 @@ class AdministratorTest {
         Professor professor = new Professor("Test Professor", "Test Department", "Test University", 8001);
         university.addProfessor(professor);
 
-        admin.removeProfessor(university, "Test Professor");
+        admin.removeProfessor(university, 1);
 
         assertEquals(0, university.getProfessors().size());
     }

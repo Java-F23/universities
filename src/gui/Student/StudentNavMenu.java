@@ -14,18 +14,20 @@ public class StudentNavMenu extends JMenuBar{
         return this; // Return the current instance, which is a JMenuBar
     }
     private Student student;
-    private landing app; // Add a field to store the 'landing' instance
+    private landing app;
     private StudentHomePanel studentHomePanel;
     private CoursesPanel coursesPanel;
     private GradesPanel gradesPanel;
     private University university;
+    private StudentNavMenuController controller;
 
-    public StudentNavMenu(landing app, StudentHomePanel studentHomePanel, CoursesPanel coursesPanel, GradesPanel gradesPanel, University university) {
+    public StudentNavMenu(landing app, StudentHomePanel studentHomePanel, CoursesPanel coursesPanel, GradesPanel gradesPanel, University university, StudentNavMenuController controller) {
         this.studentHomePanel=studentHomePanel;
         this.app = app;
-        this.coursesPanel = coursesPanel; // Initialize coursesPanel
-        this.gradesPanel = gradesPanel; // Initialize gradesPanel
-        this.university = university; // Initialize university
+        this.coursesPanel = coursesPanel;
+        this.gradesPanel = gradesPanel;
+        this.university = university;
+        this.controller = controller;
 
         JMenuBar menuBar = new JMenuBar();
 
@@ -93,99 +95,34 @@ public class StudentNavMenu extends JMenuBar{
         //app.setJMenuBar(menuBar);
         studentHomePanel.setJMenuBar(menuBar);
 
-        // Add action listeners to menu items
-        viewCoursesItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                studentHomePanel.switchToPanel(coursesPanel.viewCoursesPanel());
-            }
-        });
+        viewCoursesItem.setActionCommand("View Courses");
+        viewCourseByDepartmentItem.setActionCommand("View Course by Department");
+        viewCourseByProfessorItem.setActionCommand("View Course by Professor");
+        getCourseDetailsItem.setActionCommand("Get Course Details");
+        getCourseScheduleItem.setActionCommand("Get Course Schedule");
+        favoriteCoursesItem.setActionCommand("Favorite Courses");
+        removeCourseFromFavoritesItem.setActionCommand("Remove Course from Favorites");
+        viewFavoriteCoursesItem.setActionCommand("View Favorite Courses");
+        enrollInCourseItem.setActionCommand("Enroll in a Course");
+        viewAcademicTranscriptItem.setActionCommand("View Academic Transcript");
+        viewHistoricalCourseScheduleItem.setActionCommand("View Historical Course Schedule");
+        viewPastSemesterPerformanceItem.setActionCommand("View Past Semester Performance");
+        logoutMenu.setActionCommand("Logout");
 
-        viewCourseByDepartmentItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                studentHomePanel.switchToPanel(coursesPanel.viewCoursesByDepartmentPanel());
-            }
-        });
+        viewCoursesItem.addActionListener(controller);
+        viewCourseByDepartmentItem.addActionListener(controller);
+        viewCourseByProfessorItem.addActionListener(controller);
+        getCourseDetailsItem.addActionListener(controller);
+        getCourseScheduleItem.addActionListener(controller);
+        favoriteCoursesItem.addActionListener(controller);
+        removeCourseFromFavoritesItem.addActionListener(controller);
+        viewFavoriteCoursesItem.addActionListener(controller);
+        enrollInCourseItem.addActionListener(controller);
+        viewAcademicTranscriptItem.addActionListener(controller);
+        viewHistoricalCourseScheduleItem.addActionListener(controller);
+        viewPastSemesterPerformanceItem.addActionListener(controller);
+        logoutMenu.addActionListener(controller);
 
-        viewCourseByProfessorItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                studentHomePanel.switchToPanel(coursesPanel.viewCoursesByProfessorPanel());
-            }
-        });
-
-        getCourseDetailsItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                studentHomePanel.switchToPanel(coursesPanel.viewCourseDetailsPanel());
-            }
-        });
-
-        getCourseScheduleItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                studentHomePanel.switchToPanel(coursesPanel.getCourseSchedulePanel());
-            }
-        });
-
-        favoriteCoursesItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                studentHomePanel.switchToPanel(coursesPanel.addToFavoritesPanel());
-
-            }
-        });
-
-        removeCourseFromFavoritesItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                studentHomePanel.switchToPanel(coursesPanel.removeCourseFromFavorites());
-            }
-        });
-
-        viewFavoriteCoursesItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                studentHomePanel.switchToPanel(coursesPanel.viewFavoriteCoursesPanel());
-            }
-        });
-
-        enrollInCourseItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                studentHomePanel.switchToPanel(coursesPanel.enrollInCoursePanel());
-            }
-        });
-
-        viewAcademicTranscriptItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                studentHomePanel.switchToPanel(gradesPanel.getTranscriptPanel());
-            }
-        });
-
-        viewHistoricalCourseScheduleItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                studentHomePanel.switchToPanel(gradesPanel.getHistoricalCourseSchedulePanel());
-            }
-        });
-
-        viewPastSemesterPerformanceItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                studentHomePanel.switchToPanel(gradesPanel.getGPAPanel());
-            }
-        });
-
-        logoutMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                app.switchToLandingFrame();
-                studentHomePanel.switchToHomePage();
-            }
-        });
     }
 }
 

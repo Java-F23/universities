@@ -1,18 +1,11 @@
 package gui;
-import com.company.DataInitializer;
 import com.company.models.*;
 import gui.Admin.*;
-import gui.Professor.ProfNavMenu;
-import gui.Professor.ProfessorHomePanel;
-import gui.Professor.ProfessorPanels;
-import gui.Student.CoursesPanel;
-import gui.Student.GradesPanel;
-import gui.Student.StudentHomePanel;
-import gui.Student.StudentNavMenu;
+import gui.Professor.*;
+import gui.Student.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.function.Consumer;
 
 public class landing extends JFrame{
     private CoursesPanel coursesPanel;
@@ -31,39 +24,69 @@ public class landing extends JFrame{
     private AdminNavMenu adminNavMenu;
     private UserType userType;
     private University university;
-    private Student student; // Add a field to store the Student object set in FormPanel
+    private Student student;
     private Professor professor;
     private Administrator admin;
+    private AdminNavMenuController adminNavMenuController;
+    private ProfNavMenuController profNavMenuController;
+    private StudentNavMenuController studentNavMenuController;
+    private ProfessorPanelsController professorPanelsController;
+    private AdminCoursesPanelController adminCoursesPanelController;
+    private AdminProfessorsPanelController adminProfessorsPanelController;
+    private AdminStudentsPanelController adminStudentsPanelController;
+    private CoursesPanelController coursesPanelController;
+    private FormPanelController formPanelController;
 
-    public landing() {
+    private ApplicationController controller;
+
+    public landing(ApplicationController controller) {
+        this.controller = controller;
+        this.university = controller.getUniversity();
+        if(controller.getUniversity() == null) {
+            System.out.println("University is null");
+        }
+
         setTitle("University Platform");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        String uniName = "The American University in Cairo";
-        String uniLocation = "New Cairo, Egypt";
-        university = new University(uniName, uniLocation);
-        admin = new Administrator(university.getName(), 1001, "admin1234");
-
-        formPanel = new FormPanel(this, university);
+        formPanelController = new FormPanelController(university, this);
+        formPanel = new FormPanel(this, university, formPanelController);
+        formPanelController.setView(formPanel);
 
         userType = formPanel.getUserType();
-        //student = formPanel.getFormPanelStudent();
         professorHomePanel = new ProfessorHomePanel(landing.this, profNavMenu, professor);
         adminHomePanel = new AdminHomePanel(landing.this, adminNavMenu, admin, coursesPanel);
         studentHomePanel = new StudentHomePanel(landing.this, studentNavMenu, student);
 
-        studentNavMenu = new StudentNavMenu(landing.this, studentHomePanel, coursesPanel, gradesPanel, university);
-        profNavMenu = new ProfNavMenu(landing.this, university, professorHomePanel, professorPanels);
-        adminNavMenu = new AdminNavMenu(landing.this, adminHomePanel, university, adminCoursesPanel, adminProfessorsPanel, adminStudentsPanel);
+        professorPanelsController = new ProfessorPanelsController( university, professor);
+        adminCoursesPanelController = new AdminCoursesPanelController(admin, university);
+        adminProfessorsPanelController = new AdminProfessorsPanelController(admin, university);
+        adminStudentsPanelController = new AdminStudentsPanelController(admin, university);
+        coursesPanelController = new CoursesPanelController(university, student);
 
-        coursesPanel = new CoursesPanel(studentHomePanel, university);
+        coursesPanel = new CoursesPanel(studentHomePanel, university, coursesPanelController);
+        coursesPanelController.setView(coursesPanel);
         gradesPanel = new GradesPanel(studentHomePanel, university);
-        professorPanels = new ProfessorPanels (professorHomePanel, university, professor);
-        adminCoursesPanel = new AdminCoursesPanel(adminHomePanel, university, admin);
-        adminProfessorsPanel = new AdminProfessorsPanel(adminHomePanel, university, admin);
-        adminStudentsPanel = new AdminStudentsPanel(adminHomePanel, university, admin);
+        professorPanels = new ProfessorPanels (professorHomePanel, university, professor, professorPanelsController);
+        professorPanelsController.setView(professorPanels);
+        adminCoursesPanel = new AdminCoursesPanel(adminHomePanel, university, admin, adminCoursesPanelController);
+        adminCoursesPanelController.setView(adminCoursesPanel);
+        adminProfessorsPanel = new AdminProfessorsPanel(adminHomePanel, university, admin, adminProfessorsPanelController);
+        adminProfessorsPanelController.setView(adminProfessorsPanel);
+        adminStudentsPanel = new AdminStudentsPanel(adminHomePanel, university, admin, adminStudentsPanelController);
+        adminStudentsPanelController.setView(adminStudentsPanel);
+
+        profNavMenu = new ProfNavMenu(landing.this, university, professorHomePanel, professorPanels, profNavMenuController);
+        studentNavMenu = new StudentNavMenu(landing.this, studentHomePanel, coursesPanel, gradesPanel, university, studentNavMenuController);
+        adminNavMenu = new AdminNavMenu(landing.this, adminHomePanel, university, adminCoursesPanel, adminProfessorsPanel, adminStudentsPanel, adminNavMenuController);
+
+        adminNavMenuController = new AdminNavMenuController(adminHomePanel, adminCoursesPanel, adminProfessorsPanel, adminStudentsPanel, landing.this);
+        profNavMenuController = new ProfNavMenuController(professorPanels, professorHomePanel, landing.this);
+        studentNavMenuController = new StudentNavMenuController(studentHomePanel,  coursesPanel, gradesPanel, landing.this, university,  student);
+
+        System.out.println("professorPanelsController: " + professorPanelsController);
 
         coursesPanel.setStudent(student);
 
@@ -85,12 +108,8 @@ public class landing extends JFrame{
         });
     }
 
-    public void initializeData() {
-        DataInitializer.initializeData(university); // Pass the university object
-    }
-
-    public void setStudent(Student student) {
-        this.student = student;
+    public FormPanelController getFormPanel() {
+        return formPanelController;
     }
 
     public void switchToLandingFrame(){
@@ -102,58 +121,28 @@ public class landing extends JFrame{
         });
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            landing app = new landing();
-
-            app.initializeData(); // Initialize the data
-
-            // Add your listener initialization here
-            app.formPanel.addStudentSetListener(new Consumer<Student>() {
-                @Override
-                public void accept(Student student) {
-                    app.setStudent(student);
-                    app.getStudentHomePanel().setStudent(student);
-                }
-            });
-
-            app.formPanel.addProfessorSetListener(new Consumer<Professor>() {
-                @Override
-                public void accept(Professor professor) {
-                    app.professor = professor;
-                    app.getProfessorHomePanel().setProfessor(professor);
-                }
-            });
-
-            app.formPanel.addAdminSetListener(new Consumer<Administrator>() {
-                @Override
-                public void accept(Administrator admin) {
-                    app.admin = admin;
-                    app.getAdminHomePanel().setAdmin(admin);
-                }
-            });
-            app.setVisible(true);
-        });
-    }
-
     public void updateUserTypeAndMenu(UserType userType) {
         this.userType = userType;
         if (userType == UserType.STUDENT) {
-            this.studentNavMenu = new StudentNavMenu(this, studentHomePanel, coursesPanel, gradesPanel, university);
+            this.studentNavMenu = new StudentNavMenu(this, studentHomePanel, coursesPanel, gradesPanel, university, studentNavMenuController);
         } else if (userType == UserType.PROFESSOR) {
-            this.profNavMenu = new ProfNavMenu(landing.this, university, professorHomePanel, professorPanels);
+            this.profNavMenu = new ProfNavMenu(landing.this, university, professorHomePanel, professorPanels, profNavMenuController);
 
             // Handle professor menu
         } else if (userType == UserType.ADMIN) {
-            this.adminNavMenu = new AdminNavMenu(this, adminHomePanel, university, adminCoursesPanel, adminProfessorsPanel, adminStudentsPanel);
+            this.adminNavMenu = new AdminNavMenu(this, adminHomePanel, university, adminCoursesPanel, adminProfessorsPanel, adminStudentsPanel, adminNavMenuController);
             // Handle admin menu
         } else {
             // No menu bar
-            this.studentNavMenu = new StudentNavMenu(this, studentHomePanel, coursesPanel, gradesPanel, university);
+            this.studentNavMenu = new StudentNavMenu(this, studentHomePanel, coursesPanel, gradesPanel, university, studentNavMenuController);
             setJMenuBar(studentNavMenu);
         }
         revalidate();
         repaint();
+    }
+
+    public Professor getProfessor() {
+        return professor;
     }
 
     public Student getStudent() {
@@ -174,10 +163,22 @@ public class landing extends JFrame{
 
     public void setProfessor(Professor professor) {
         this.professor = professor;
+        professorPanelsController.setProfessor(professor);
     }
 
     public void setAdmin(Administrator admin) {
         this.admin = admin;
+        adminCoursesPanelController.setAdmin(admin);
+        adminProfessorsPanelController.setAdmin(admin);
+        adminStudentsPanelController.setAdmin(admin);
     }
 
+    public void setStudent(Student student) {
+        this.student = student;
+        coursesPanelController.setStudent(student);
+    }
+
+    public void setUniversity(University university) {
+        this.university = university;
+    }
 }

@@ -12,13 +12,121 @@ import java.util.ArrayList;
 public class AdminCoursesPanel extends JPanel {
     private AdminHomePanel parentPanel;
     private University university;
-    Administrator admin;
+    private Administrator admin;
+    private JTextField nameField;
+    private JTextField departmentField;
+    private JTextField descriptionField;
+    private JComboBox<String> creditsComboBox;
+    private JLabel messageLabel;
+    private AdminCoursesPanelController controller;
+    private JTextField oldCourseNameField;
+    private JTextField newCourseNameField;
+    private  JTextField semesterField;
+    private JTextField professorIDField;
+    private JTextField maxClassCapacityField;
+    private JTextField classLocationField;
+    private JTextField classTimeField;
+    private JTextField newCapacityField;
+    private JTextField sectionNumberField;
+    private JTextField classDaysField;
 
-    public AdminCoursesPanel(AdminHomePanel parentPanel, University university, Administrator admin) {
+    public AdminCoursesPanel(AdminHomePanel parentPanel, University university, Administrator admin, AdminCoursesPanelController controller) {
         this.parentPanel = parentPanel;
         this.university = university;
         this.admin = admin;
+        this.controller = controller;
+
         setLayout(new BorderLayout());
+    }
+
+    public JTextField getSemesterField() {
+        return semesterField;
+    }
+
+    public JTextField getProfessorIDField() {
+        return professorIDField;
+    }
+
+    public JTextField getMaxClassCapacityField() {
+        return maxClassCapacityField;
+    }
+
+    public JTextField getClassLocationField() {
+        return classLocationField;
+    }
+
+    public JTextField getClassTimeField() {
+        return classTimeField;
+    }
+
+    public JTextField getCourseName() {
+        return nameField;
+    }
+
+    public JTextField getDepartment() {
+        return departmentField;
+    }
+
+    public JTextField getDescription() {
+        return descriptionField;
+    }
+
+    public int getNumOfCredits() {
+        return Integer.parseInt((String) creditsComboBox.getSelectedItem());
+    }
+
+    public JTextField getOldCourseName() {
+        return oldCourseNameField;
+    }
+
+    public JTextField getNewCourseName() {
+        return newCourseNameField;
+    }
+
+    public JTextField getNewCapacityField() {
+        return newCapacityField;
+    }
+
+    public JTextField getSectionNumberField() {
+        return sectionNumberField;
+    }
+
+    public JTextField getClassDaysField() {
+        return classDaysField;
+    }
+
+    public void clearInputFields() {
+        nameField.setText("");
+        departmentField.setText("");
+        descriptionField.setText("");
+        creditsComboBox.setSelectedIndex(0);
+    }
+
+    public void clearEditCapacityFields(){
+        nameField.setText("");
+        semesterField.setText("");
+        newCapacityField.setText("");
+        sectionNumberField.setText("");
+    }
+
+    public void clearUpdateCourseFields(){
+        oldCourseNameField.setText("");
+        newCourseNameField.setText("");
+        departmentField.setText("");
+    }
+
+    public void clearAddClassFields(){
+        nameField.setText("");
+        semesterField.setText("");
+        professorIDField.setText("");
+        maxClassCapacityField.setText("");
+        classLocationField.setText("");
+        classTimeField.setText("");
+        classDaysField.setText("");
+    }
+
+    public void displayMessage(String message, String title, int messageType) {
+        JOptionPane.showMessageDialog(this, message, title, messageType);
     }
 
     public JPanel viewCoursesPanel() {
@@ -42,9 +150,8 @@ public class AdminCoursesPanel extends JPanel {
         ArrayList<Course> courses = university.getCourses();
 
         // Update the table with course data
-        for (Course course : courses) {
-            tableModel.addRow(new Object[]{course.getName(), course.getDepartment()});
-        }
+        courses.forEach(course -> tableModel.addRow(new Object[]{course.getName(), course.getDepartment()}));
+
 
         return panel;
     }
@@ -66,7 +173,7 @@ public class AdminCoursesPanel extends JPanel {
         addCoursePanel.add(nameLabel, gbc);
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        JTextField nameField = new JTextField(30);
+        nameField = new JTextField(30);
         nameField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         addCoursePanel.add(nameField, gbc);
 
@@ -77,7 +184,7 @@ public class AdminCoursesPanel extends JPanel {
         departmentLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         addCoursePanel.add(departmentLabel, gbc);
         gbc.gridx = 1;
-        JTextField departmentField = new JTextField(30);
+        departmentField = new JTextField(30);
         departmentField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         addCoursePanel.add(departmentField, gbc);
 
@@ -88,7 +195,7 @@ public class AdminCoursesPanel extends JPanel {
         descriptionLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         addCoursePanel.add(descriptionLabel, gbc);
         gbc.gridx = 1;
-        JTextField descriptionField = new JTextField(30);
+        descriptionField = new JTextField(30);
         descriptionField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         addCoursePanel.add(descriptionField, gbc);
 
@@ -100,7 +207,7 @@ public class AdminCoursesPanel extends JPanel {
         addCoursePanel.add(creditsLabel, gbc);
         gbc.gridx = 1;
         String[] creditOptions = { "1", "2", "3", "4" };
-        JComboBox<String> creditsComboBox = new JComboBox<>(creditOptions);
+        creditsComboBox = new JComboBox<>(creditOptions);
         creditsComboBox.setFont(new Font("SansSerif", Font.PLAIN, 18));
         addCoursePanel.add(creditsComboBox, gbc);
 
@@ -120,52 +227,14 @@ public class AdminCoursesPanel extends JPanel {
         gbc.gridy++;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        JLabel messageLabel = new JLabel();
+        messageLabel = new JLabel();
         messageLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         addCoursePanel.add(messageLabel, gbc);
 
-        createButton.addActionListener(e -> {
-            String courseName = nameField.getText();
-            String department = departmentField.getText();
-            String description = descriptionField.getText();
-            int numOfCredits = Integer.parseInt((String) creditsComboBox.getSelectedItem());
-
-            // Try to create the course and display a dialog with a message
-            if (createCourse(university, courseName, department, description, numOfCredits)) {
-                JOptionPane.showMessageDialog(
-                        addCoursePanel,
-                        "Course created successfully.",
-                        "Success",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
-
-                // Clear the input fields
-                nameField.setText("");
-                departmentField.setText("");
-                descriptionField.setText("");
-                creditsComboBox.setSelectedIndex(0);
-            } else {
-                JOptionPane.showMessageDialog(
-                        addCoursePanel,
-                        "An error occurred.",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE
-                );
-            }
-        });
+        createButton.setActionCommand("Create Button");
+        createButton.addActionListener(controller);
 
         return addCoursePanel;
-    }
-
-    public boolean createCourse(University university, String courseName, String department, String description, int numOfCredits) {
-        try {
-            Course adminCourse = new Course(courseName, department, description, numOfCredits);
-            university.addCourse(adminCourse);
-            return true;
-        } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
-            return false;
-        }
     }
 
     public JPanel updateCourseDetailsPanel() {
@@ -193,7 +262,7 @@ public class AdminCoursesPanel extends JPanel {
         panel.add(oldCourseNameLabel, gbc);
 
         gbc.gridx = 1;
-        JTextField oldCourseNameField = new JTextField(fieldWidth);
+        oldCourseNameField = new JTextField(fieldWidth);
         oldCourseNameField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         panel.add(oldCourseNameField, gbc);
 
@@ -205,7 +274,7 @@ public class AdminCoursesPanel extends JPanel {
         panel.add(newCourseNameLabel, gbc);
 
         gbc.gridx = 1;
-        JTextField newCourseNameField = new JTextField(fieldWidth);
+        newCourseNameField = new JTextField(fieldWidth);
         newCourseNameField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         panel.add(newCourseNameField, gbc);
 
@@ -217,7 +286,7 @@ public class AdminCoursesPanel extends JPanel {
         panel.add(departmentLabel, gbc);
 
         gbc.gridx = 1;
-        JTextField departmentField = new JTextField(fieldWidth);
+        departmentField = new JTextField(fieldWidth);
         departmentField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         panel.add(departmentField, gbc);
 
@@ -236,36 +305,12 @@ public class AdminCoursesPanel extends JPanel {
         gbc.gridy++;
         gbc.gridwidth = 2; // Span 2 columns
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        JLabel messageLabel = new JLabel();
+        messageLabel = new JLabel();
         messageLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         panel.add(messageLabel, gbc);
 
-        updateCourseButton.addActionListener(e -> {
-            try {
-                String oldCourseName = oldCourseNameField.getText();
-                String newCourseName = newCourseNameField.getText();
-                String department = departmentField.getText();
-
-                // Validate input and handle exceptions
-                if (oldCourseName.isEmpty() || newCourseName.isEmpty() || department.isEmpty()) {
-                    throw new IllegalArgumentException("All fields must be filled.");
-                }
-
-                // Call the updateCourse function and provide user feedback
-                String feedback = admin.updateCourse(university, oldCourseName, newCourseName, department, "");
-
-                // Display user feedback using an output dialog
-                messageLabel.setText(feedback);
-
-                // Clear the input fields
-                oldCourseNameField.setText("");
-                newCourseNameField.setText("");
-                departmentField.setText("");
-            } catch (Exception ex) {
-                // Handle exceptions
-                messageLabel.setText("An error occurred: " + ex.getMessage());
-            }
-        });
+        updateCourseButton.setActionCommand("Update Course Button");
+        updateCourseButton.addActionListener(controller);
 
         return panel;
     }
@@ -287,9 +332,9 @@ public class AdminCoursesPanel extends JPanel {
         addClassPanel.add(courseNameLabel, gbc);
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        JTextField courseNameField = new JTextField(30);
-        courseNameField.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        addClassPanel.add(courseNameField, gbc);
+        nameField = new JTextField(30);
+        nameField.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        addClassPanel.add(nameField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
@@ -298,7 +343,7 @@ public class AdminCoursesPanel extends JPanel {
         semesterLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         addClassPanel.add(semesterLabel, gbc);
         gbc.gridx = 1;
-        JTextField semesterField = new JTextField(30);
+        semesterField = new JTextField(30);
         semesterField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         addClassPanel.add(semesterField, gbc);
 
@@ -309,7 +354,7 @@ public class AdminCoursesPanel extends JPanel {
         professorIDLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         addClassPanel.add(professorIDLabel, gbc);
         gbc.gridx = 1;
-        JTextField professorIDField = new JTextField(30);
+        professorIDField = new JTextField(30);
         professorIDField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         addClassPanel.add(professorIDField, gbc);
 
@@ -320,7 +365,7 @@ public class AdminCoursesPanel extends JPanel {
         maxClassCapacityLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         addClassPanel.add(maxClassCapacityLabel, gbc);
         gbc.gridx = 1;
-        JTextField maxClassCapacityField = new JTextField(30);
+        maxClassCapacityField = new JTextField(30);
         maxClassCapacityField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         addClassPanel.add(maxClassCapacityField, gbc);
 
@@ -331,9 +376,9 @@ public class AdminCoursesPanel extends JPanel {
         locationLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         addClassPanel.add(locationLabel, gbc);
         gbc.gridx = 1;
-        JTextField locationField = new JTextField(30);
-        locationField.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        addClassPanel.add(locationField, gbc);
+        classLocationField = new JTextField(30);
+        classLocationField.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        addClassPanel.add(classLocationField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
@@ -342,9 +387,20 @@ public class AdminCoursesPanel extends JPanel {
         timeLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         addClassPanel.add(timeLabel, gbc);
         gbc.gridx = 1;
-        JTextField timeField = new JTextField(30);
-        timeField.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        addClassPanel.add(timeField, gbc);
+        classTimeField = new JTextField(30);
+        classTimeField.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        addClassPanel.add(classTimeField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        // Days
+        JLabel daysLabel = new JLabel("Days:");
+        daysLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+        addClassPanel.add(daysLabel, gbc);
+        gbc.gridx = 1;
+        classDaysField = new JTextField(30);
+        classDaysField.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        addClassPanel.add(classDaysField, gbc);
 
         // Center and make the button the same width and increase button height
         gbc.gridx = 0;
@@ -362,40 +418,12 @@ public class AdminCoursesPanel extends JPanel {
         gbc.gridy++;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        JLabel messageLabel = new JLabel();
+        messageLabel = new JLabel();
         messageLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         addClassPanel.add(messageLabel, gbc);
 
-        addClassButton.addActionListener(e -> {
-            String courseName = courseNameField.getText();
-            String semesterName = semesterField.getText();
-            int professorID;
-            int maxClassCapacity;
-
-            try {
-                professorID = Integer.parseInt(professorIDField.getText());
-                maxClassCapacity = Integer.parseInt(maxClassCapacityField.getText());
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(addClassPanel, "Professor ID and Max Class Capacity must be valid numbers.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            String location = locationField.getText();
-            String time = timeField.getText();
-
-            if (courseName.isEmpty() || semesterName.isEmpty() || location.isEmpty() || time.isEmpty()) {
-                JOptionPane.showMessageDialog(addClassPanel, "All fields must be filled.", "Missing Information", JOptionPane.ERROR_MESSAGE);
-            } else {
-                ClassTiming classTiming = new ClassTiming(time, location);
-                Schedule schedule = new Schedule(classTiming, location);
-
-                // Call the addClass function and provide user feedback
-                String feedback = admin.addClass(university, courseName, semesterName, professorID, maxClassCapacity, schedule);
-
-                // Display user feedback in the result area
-                messageLabel.setText(feedback);
-            }
-        });
+        addClassButton.setActionCommand("Add Class Button");
+        addClassButton.addActionListener(controller);
 
         return addClassPanel;
     }
@@ -406,10 +434,10 @@ public class AdminCoursesPanel extends JPanel {
         panel.setLayout(new BorderLayout());
 
         // Create input fields and labels
-        JTextField courseNameField = new JTextField(20);
-        JTextField semesterNameField = new JTextField(20);
-        JTextField newCapacityField = new JTextField(20);
-        JTextField sectionNumberField = new JTextField(20);
+        nameField = new JTextField(20);
+        semesterField = new JTextField(20);
+        newCapacityField = new JTextField(20);
+        sectionNumberField = new JTextField(20);
 
         // Create the "Edit Capacity" button
         JButton editCapacityButton = new JButton("Edit Capacity");
@@ -425,13 +453,13 @@ public class AdminCoursesPanel extends JPanel {
         gbc.gridy = 0;
         contentPanel.add(new JLabel("Enter the name of the course: "), gbc);
         gbc.gridx = 1;
-        contentPanel.add(courseNameField, gbc);
+        contentPanel.add(nameField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
         contentPanel.add(new JLabel("Enter the semester: "), gbc);
         gbc.gridx = 1;
-        contentPanel.add(semesterNameField, gbc);
+        contentPanel.add(semesterField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy++;
@@ -453,41 +481,8 @@ public class AdminCoursesPanel extends JPanel {
         panel.add(contentPanel, BorderLayout.NORTH);
         panel.add(buttonPanel, BorderLayout.CENTER);
 
-        // Add an action listener to the "Edit Capacity" button
-        editCapacityButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String courseName = courseNameField.getText();
-                String semesterName = semesterNameField.getText();
-                String newCapacityStr = newCapacityField.getText();
-                String sectionNumberStr = sectionNumberField.getText();
-
-                if (courseName.isEmpty() || semesterName.isEmpty()) {
-                    JOptionPane.showMessageDialog(panel, "Course name and semester are required.", "Input Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                int newCapacity, sectionNumber;
-                try {
-                    newCapacity = Integer.parseInt(newCapacityStr);
-                    sectionNumber = Integer.parseInt(sectionNumberStr);
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(panel, "New capacity and section number must be integers.", "Input Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                String feedback = admin.editCapacity(university, courseName, semesterName, newCapacity, sectionNumber);
-
-                // Display user feedback using an output dialog
-                JOptionPane.showMessageDialog(panel, feedback, "Edit Capacity Result", JOptionPane.INFORMATION_MESSAGE);
-
-                // Clear the input fields
-                courseNameField.setText("");
-                semesterNameField.setText("");
-                newCapacityField.setText("");
-                sectionNumberField.setText("");
-            }
-        });
+        editCapacityButton.setActionCommand("Edit Capacity Button");
+        editCapacityButton.addActionListener(controller);
 
         return panel;
     }

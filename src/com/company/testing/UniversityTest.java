@@ -34,7 +34,7 @@ class UniversityTest {
     void testFindCourseByName() {
         Course course = new Course("Test Course", "Test Department", "Test Description", 3);
         university.addCourse(course);
-        Course foundCourse = university.findCourseByName("Test Course");
+        Course foundCourse = university.getCourseByName("Test Course");
         assertNotNull(foundCourse);
         assertEquals("Test Course", foundCourse.getName());
     }

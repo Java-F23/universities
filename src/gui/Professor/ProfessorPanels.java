@@ -17,18 +17,51 @@ public class ProfessorPanels extends JPanel {
     private CoursesPanel coursesPanel;
     private University university;
     private Professor professor;
-    private JComboBox<String> gradeComboBox;
     private JButton submitButton;
+    private ProfessorPanelsController controller;
 
-    public ProfessorPanels(ProfessorHomePanel parentPanel, University university, Professor professor) {
+    private JTextField studentIDField;
+    private JTextField courseNameField;
+    private JComboBox<String> gradeComboBox;
+    private JCheckBox attendanceCheckBox;
+
+    public ProfessorPanels(ProfessorHomePanel parentPanel, University university, Professor professor, ProfessorPanelsController controller){
         this.parentPanel = parentPanel;
         this.university = university;
         this.professor = professor;
         this.coursesPanel = coursesPanel;
+        this.controller = controller;
+        System.out.println("First controller is " + controller);
         setLayout(new BorderLayout());
     }
 
+    public JTextField getStudentIDField() {
+        return studentIDField;
+    }
+
+    public JTextField getCourseNameField() {
+        return courseNameField;
+    }
+
+    public JComboBox<String> getGradeComboBox() {
+        return gradeComboBox;
+    }
+
+    public JCheckBox getAttendanceCheckBox() {
+        return attendanceCheckBox;
+    }
+
+    public void displayMessage(String message, String title, int messageType) {
+        JOptionPane.showMessageDialog(this, message, title, messageType);
+    }
+
+    public void clearSubmitGradeFields(){
+        studentIDField.setText("");
+        courseNameField.setText("");
+    }
+
     public JPanel createGradeEntryPanel(List<String> gradeChoices) {
+        System.out.println("Creating grade entry panel.");
         professor = parentPanel.getProfessor();
         JPanel gradeEntryPanel = new JPanel();
         gradeEntryPanel.setLayout(new BorderLayout());
@@ -38,12 +71,12 @@ public class ProfessorPanels extends JPanel {
         dataEntryPanel.setLayout(new FlowLayout());
 
         // Input student ID as int and give an error if not int
-        JTextField studentIDField = new JTextField(10);
+        studentIDField = new JTextField(10);
         dataEntryPanel.add(new JLabel("Student ID: "));
         dataEntryPanel.add(studentIDField);
 
         // Input course name
-        JTextField courseNameField = new JTextField(10);
+        courseNameField = new JTextField(10);
         dataEntryPanel.add(new JLabel("Course Name: "));
         dataEntryPanel.add(courseNameField);
 
@@ -57,40 +90,12 @@ public class ProfessorPanels extends JPanel {
 
         // Create a submit button
         submitButton = new JButton("Submit Grade");
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String studentIDText = studentIDField.getText();
-                String courseName8 = courseNameField.getText();
-                String grade = (String) gradeComboBox.getSelectedItem();
-
-                try {
-                    int studentID2 = Integer.parseInt(studentIDText);
-
-                    Student student7 = university.findStudentByID(studentID2);
-                    Course course5 = university.findCourseByName(courseName8);
-                    Class class8 = course5.findClassByStudent(student7);
-
-                    if (class8 == null) {
-                        JOptionPane.showMessageDialog(null, "Class not found.");
-                    } else if(student7 == null){
-                        JOptionPane.showMessageDialog(null, "Student not found.");
-                    } else if(course5 ==null){
-                        JOptionPane.showMessageDialog(null, "Course not found.");
-                    }
-                    else {
-                        professor.inputGrades(student7, class8, grade);
-                        JOptionPane.showMessageDialog(null, "Grade submitted.");
-                        // Clear the text fields
-                        studentIDField.setText("");
-                        courseNameField.setText("");
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Invalid student ID. Please enter a number.");
-                }
-            }
-        });
         gradeEntryPanel.add(submitButton, BorderLayout.SOUTH);
+
+        submitButton.setActionCommand("Submit Grade");
+        submitButton.addActionListener(controller);
+        System.out.println("Second controller is " + controller);
+
 
         return gradeEntryPanel;
     }
@@ -103,15 +108,15 @@ public class ProfessorPanels extends JPanel {
         JPanel dataEntryPanel = new JPanel();
         dataEntryPanel.setLayout(new FlowLayout());
 
-        JTextField studentIDField = new JTextField(10);
+        studentIDField = new JTextField(10);
         dataEntryPanel.add(new JLabel("Student ID: "));
         dataEntryPanel.add(studentIDField);
 
-        JTextField courseNameField = new JTextField(10);
+        courseNameField = new JTextField(10);
         dataEntryPanel.add(new JLabel("Course Name: "));
         dataEntryPanel.add(courseNameField);
 
-        JCheckBox attendanceCheckBox = new JCheckBox("Attended?");
+        attendanceCheckBox = new JCheckBox("Attended?");
         dataEntryPanel.add(attendanceCheckBox);
         //add a tool kit to explain what the checkbox is for
         attendanceCheckBox.setToolTipText("Check if student attended class");
@@ -119,34 +124,11 @@ public class ProfessorPanels extends JPanel {
         attendancePanel.add(dataEntryPanel, BorderLayout.CENTER);
 
         JButton takeAttendanceButton = new JButton("Take Attendance");
-        takeAttendanceButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String studentIDText = studentIDField.getText();
-                String courseName = courseNameField.getText();
-                boolean isPresent = attendanceCheckBox.isSelected();
+        takeAttendanceButton.setActionCommand("Take Attendance");
+        takeAttendanceButton.addActionListener(controller);
 
-                try {
-                    int studentID = Integer.parseInt(studentIDText);
-                    Student student = university.findStudentByID(studentID);
-                    Course course = university.findCourseByName(courseName);
-                    Class class1 = course.findClassByStudent(student); //find class by student in course
+        System.out.println("The professor is " + professor.getName());
 
-                    if (student != null && course != null&& class1 != null) {
-                        professor.takeAttendance(student, class1, isPresent);
-                        JOptionPane.showMessageDialog(null, "Attendance taken.");
-                        studentIDField.setText("");
-                        courseNameField.setText("");
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Student, course, or course not found.");
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Invalid student ID. Please enter a number.");
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "An error occurred: " + ex.getMessage());
-                }
-            }
-        });
         attendancePanel.add(takeAttendanceButton, BorderLayout.SOUTH);
 
         return attendancePanel;

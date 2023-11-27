@@ -21,14 +21,15 @@ public class FormPanel extends JPanel {
     private Student student; // Add a field to store the Student object set in FormPanel
     private Professor professor;
     private Administrator admin;
-    private Consumer<Student> studentSetListener;
-    private Consumer<Professor> professorSetListener;
-    private Consumer<Administrator> adminSetListener;
     private landing parent;
+    private FormPanelController controller;
 
-    public FormPanel(landing parentFrame, University university) {
+    public FormPanel(landing parentFrame, University university, FormPanelController controller) {
         this.university = university;
         this.parent = parentFrame;
+        this.controller = controller;
+
+
         setLayout(new GridLayout(0, 1, 10, 10));
 
         JLabel label = new JLabel("Login");
@@ -63,103 +64,26 @@ public class FormPanel extends JPanel {
 
         add(buttonPanel);
 
-        submitButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String id = idField.getText();
+        submitButton.setActionCommand("Submit Button");
+        submitButton.addActionListener(this.controller);
+    }
 
-                try {
-                    boolean isAdmin =false;
-                    int idInt = Integer.parseInt(id);
-                    String password = new String(passwordField.getPassword());
+    public JTextField getIdField() {
+        return idField;
+    }
 
-                    if(id.startsWith("1"))
-                        isAdmin = true;
+    public JPasswordField getPasswordField() {
+        return passwordField;
+    }
 
-                    if (id.isEmpty() || password.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, "Please fill in all fields.", "Error", JOptionPane.ERROR_MESSAGE);
-                    } else if(!isAdmin && university.findStudentByID(idInt)==null && university.findProfessorByID(idInt)==null){
-                        JOptionPane.showMessageDialog(null, "Invalid ID FF", "Error", JOptionPane.ERROR_MESSAGE);
-                        //set fields to empty
-                        idField.setText("");
-                        passwordField.setText("");
-                    }
-                        else {
-                        if (id.startsWith("9")) {
-                            userType = UserType.STUDENT;
-                            parentFrame.updateUserTypeAndMenu(userType); // Update the menu and user type
-                            student = university.findStudentByID(idInt); // Replace with actual student data
-                            //formPanelStudent = student; // Set the student object in FormPanel
-                            parentFrame.setStudent(student);
-                            parentFrame.switchToPanel(parentFrame.getStudentHomePanel());
-                            // Notify the listener that the student is set
-                            if (studentSetListener != null) {
-                                studentSetListener.accept(student);
-                            }else{
-                            }
-                        } else if (id.startsWith("8")) {
-                            userType = UserType.PROFESSOR;
-                            parentFrame.updateUserTypeAndMenu(userType); // Update the menu and user type
-                            professor = university.findProfessorByID(idInt); // Replace with actual student data
-                            parentFrame.setProfessor(professor);
-                            parentFrame.switchToPanel(parentFrame.getProfessorHomePanel());
-
-                            if(professorSetListener != null){
-                                professorSetListener.accept(professor);
-                            }
-                        } else if (id.startsWith("1")) {
-                            userType = UserType.ADMIN;
-                            admin = new Administrator(university.getName(), 1001, "admin1234");
-                            parentFrame.setAdmin(admin);
-                            parentFrame.updateUserTypeAndMenu(userType); // Update the menu and user type
-                            parentFrame.switchToPanel(parentFrame.getAdminHomePanel());
-
-                            if(adminSetListener != null){
-                                adminSetListener.accept(admin);
-                            }
-
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Invalid ID.", "Error", JOptionPane.ERROR_MESSAGE);
-                        }
-                        idField.setText("");
-                        passwordField.setText("");
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Invalid input for ID. Please enter a valid integer.", "Error", JOptionPane.ERROR_MESSAGE);
-                    idField.setText("");
-                    passwordField.setText("");
-                }
-            }
-        });
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 
     public UserType getUserType() {
         return userType;
     }
 
-    // Add a method to register a listener for student set events.
-    public void addStudentSetListener(Consumer<Student> listener) {
-        this.studentSetListener = listener;
-        // Check if student is available and not null
-        if (student != null) {
-            this.studentSetListener.accept(student); // Notify the listener with the current student
-        }
-    }
-
-    public void addProfessorSetListener(Consumer<Professor> listener) {
-        this.professorSetListener = listener;
-        // Check if student is available and not null
-        if (professor != null) {
-            this.professorSetListener.accept(professor); // Notify the listener with the current student
-        }
-    }
-
-    public void addAdminSetListener(Consumer<Administrator> listener) {
-        this.adminSetListener = listener;
-        // Check if student is available and not null
-        if (admin != null) {
-            this.adminSetListener.accept(admin); // Notify the listener with the current student
-        }
-    }
 }
 
 class CustomButton extends JButton {

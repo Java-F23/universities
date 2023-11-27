@@ -8,6 +8,8 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GradesPanel extends JPanel {
     private StudentHomePanel parentPanel;
@@ -45,18 +47,18 @@ public class GradesPanel extends JPanel {
         tableHeader.setFont(new Font(headerFont.getName(), Font.BOLD, 16)); // Change 16 to the desired font size
         tableHeader.setReorderingAllowed(false); // Prevent column reordering
 
-        // Fetch and display academic transcript data
+        // Fetch and display academic transcript data using streams
         try {
-            for (StudentGrade studentGrade : academicTranscript.getStudentGrades()) {
-                if (studentGrade.isCompleted()) {
-                    Class studentClass = studentGrade.getStudentClass();
-                    Course course = studentClass.getCourse();
-                    Semester semester = studentClass.getSemester();
+            academicTranscript.getStudentGrades().stream()
+                    .filter(StudentGrade::isCompleted)
+                    .forEach(studentGrade -> {
+                        Class studentClass = studentGrade.getStudentClass();
+                        Course course = studentClass.getCourse();
+                        Semester semester = studentClass.getSemester();
 
-                    // Add a new row to the table model with course, semester, and grade
-                    tableModel.addRow(new Object[]{course.getName(), semester.getName(), studentGrade.getGrade()});
-                }
-            }
+                        // Add a new row to the table model with course, semester, and grade
+                        tableModel.addRow(new Object[]{course.getName(), semester.getName(), studentGrade.getGrade()});
+                    });
         } catch (Exception e) {
             //create dialog with error
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -90,25 +92,25 @@ public class GradesPanel extends JPanel {
         tableHeader.setFont(new Font(headerFont.getName(), Font.BOLD, 16)); // Change 16 to the desired font size
         tableHeader.setReorderingAllowed(false); // Prevent column reordering
 
-        // Fetch and display historical course schedule data
+        // Fetch and display historical course schedule data using streams
         try {
-            for (StudentGrade grades : academicTranscript.getStudentGrades()) {
-                if (grades.isCompleted()) {
-                    Class studentClass = grades.getStudentClass();
-                    Course course = studentClass.getCourse();
-                    Semester semester = studentClass.getSemester();
+            academicTranscript.getStudentGrades().stream()
+                    .filter(StudentGrade::isCompleted)
+                    .forEach(grades -> {
+                        Class studentClass = grades.getStudentClass();
+                        Course course = studentClass.getCourse();
+                        Semester semester = studentClass.getSemester();
 
-                    // Add a new row to the table model with course, semester, grade, day, time, and location
-                    tableModel.addRow(new Object[]{
-                            course.getName(),
-                            semester.getName(),
-                            grades.getGrade(),
-                            studentClass.getSchedule().getClassTimings().getDayOfWeek(),
-                            studentClass.getSchedule().getClassTimings().getTime(),
-                            studentClass.getSchedule().getLocation()
+                        // Add a new row to the table model with course, semester, grade, day, time, and location
+                        tableModel.addRow(new Object[]{
+                                course.getName(),
+                                semester.getName(),
+                                grades.getGrade(),
+                                studentClass.getSchedule().getClassTimings().getDayOfWeek(),
+                                studentClass.getSchedule().getClassTimings().getTime(),
+                                studentClass.getSchedule().getLocation()
+                        });
                     });
-                }
-            }
         } catch (Exception e) {
             //create dialog with error
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -140,43 +142,22 @@ public class GradesPanel extends JPanel {
         tableHeader.setReorderingAllowed(false); // Prevent column reordering
 
         try {
-            // Maintain a list of semesters and their corresponding grade points
-            List<String> semesters = new ArrayList<>();
-            List<Double> gpaList = new ArrayList<>();
-            List<Integer> courseCounts = new ArrayList(); // Maintain course counts for each semester
+            // Use streams to collect semester data
+            Map<String, List<Double>> semesterData = academicTranscript.getStudentGrades().stream()
+                    .filter(StudentGrade::isCompleted)
+                    .collect(
+                            Collectors.groupingBy(
+                                    grades -> grades.getStudentClass().getSemester().getName(),
+                                    Collectors.mapping(StudentGrade::getNumericalGrade, Collectors.toList())
+                            )
+                    );
 
-            for (StudentGrade grades : academicTranscript.getStudentGrades()) {
-                if (grades.isCompleted()) {
-                    Class studentClass = grades.getStudentClass();
-                    String semesterName = studentClass.getSemester().getName();
-                    double gradePoint = grades.getNumericalGrade();
-
-                    // Check if the semester is already in the list
-                    int index = semesters.indexOf(semesterName);
-                    if (index == -1) {
-                        // If the semester is not in the list, add it and the initial GPA
-                        semesters.add(semesterName);
-                        gpaList.add(gradePoint);
-                        courseCounts.add(1); // Initialize course count for this semester
-                    } else {
-                        // If the semester is already in the list, update the GPA and course count
-                        double currentGPA = gpaList.get(index);
-                        gpaList.set(index, currentGPA + gradePoint);
-                        courseCounts.set(index, courseCounts.get(index) + 1); // Increment course count
-                    }
-                }
-            }
-
-            // Calculate the final GPA for each semester and add the data to the table
-            for (int i = 0; i < semesters.size(); i++) {
-                String semesterName = semesters.get(i);
-                double gpa = gpaList.get(i);
-                int numberOfCourses = courseCounts.get(i);
-                double semesterGPA = gpa / numberOfCourses;
-
+            // Calculate GPA for each semester and add the data to the table
+            semesterData.forEach((semesterName, gradePoints) -> {
+                double gpa = gradePoints.stream().mapToDouble(Double::doubleValue).sum() / gradePoints.size();
                 // Add a new row to the table model with semester and GPA
-                tableModel.addRow(new Object[]{semesterName, semesterGPA});
-            }
+                tableModel.addRow(new Object[]{semesterName, gpa});
+            });
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }

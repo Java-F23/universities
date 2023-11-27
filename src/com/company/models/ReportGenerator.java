@@ -15,25 +15,22 @@ public class ReportGenerator {
             System.out.println("Student Name\t\tCourse\t\t\tGrade\tAttendance\tAbsence");
 
             // Iterate through each student and their grades
-            for (Student student : students) {
-                if (student == null || student.getAcademicTranscript() == null) {
-                    System.err.println("Error: Missing data for a student or student grade.");
-                    continue;  // Skip to the next student if data is missing
-                }
-                for (StudentGrade studentGrade : student.getAcademicTranscript().getStudentGrades()) {
-                    String studentName = student.getName();
-                    String courseName = studentGrade.getStudentClass().getCourse().getName();
-                    String grade = studentGrade.getGrade();
-                    int attendance = studentGrade.getAttendance();
-                    int absence = studentGrade.getAbsence();
+            students.stream()
+                    .filter(student -> student != null && student.getAcademicTranscript() != null)
+                    .forEach(student -> student.getAcademicTranscript().getStudentGrades().forEach(studentGrade -> {
+                        String studentName = student.getName();
+                        String courseName = studentGrade.getStudentClass().getCourse().getName();
+                        String grade = studentGrade.getGrade();
+                        int attendance = studentGrade.getAttendance();
+                        int absence = studentGrade.getAbsence();
 
-                    // Print student performance information with fixed column widths
-                    System.out.printf("%-15s %-25s %-10s %-10d %-10d%n", studentName, courseName, grade, attendance, absence);
-                }
-            }
+                        // Print student performance information with fixed column widths
+                        System.out.printf("%-15s %-25s %-10s %-10d %-10d%n", studentName, courseName, grade, attendance, absence);
+                    }));
         } catch (NullPointerException e) {
             // Handle any unexpected NullPointerExceptions
             System.err.println("Error: An unexpected NullPointerException occurred.");
         }
     }
+
 }

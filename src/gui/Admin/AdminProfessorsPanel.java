@@ -10,13 +10,38 @@ import java.util.List;
 public class AdminProfessorsPanel extends JPanel {
     private AdminHomePanel parentPanel;
     private University university;
+    private AdminProfessorsPanelController controller;
     Administrator admin;
+    private JTextField professorNameField;
+    private JTextField departmentField;
 
-    public AdminProfessorsPanel(AdminHomePanel parentPanel, University university, Administrator admin) {
+    public AdminProfessorsPanel(AdminHomePanel parentPanel, University university, Administrator admin, AdminProfessorsPanelController controller) {
         this.parentPanel = parentPanel;
         this.university = university;
         this.admin = admin;
+        this.controller = controller;
         setLayout(new BorderLayout());
+    }
+
+    public JTextField getProfessorNameField() {
+        return professorNameField;
+    }
+
+    public JTextField getDepartmentField() {
+        return departmentField;
+    }
+
+    public void clearAddProfessorFields() {
+        professorNameField.setText("");
+        departmentField.setText("");
+    }
+
+    public void displayMessage(String message, String title, int messageType) {
+        JOptionPane.showMessageDialog(this, message, title, messageType);
+    }
+
+    public void clearRemoveProfessorFields(){
+        professorNameField.setText(""); // Clear the input field
     }
 
     public JPanel createAddProfessorPanel() {
@@ -35,7 +60,7 @@ public class AdminProfessorsPanel extends JPanel {
 
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        JTextField professorNameField = new JTextField(20); // Reduce the width
+        professorNameField = new JTextField(20); // Reduce the width
         professorNameField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         panel.add(professorNameField, gbc);
 
@@ -47,7 +72,7 @@ public class AdminProfessorsPanel extends JPanel {
         panel.add(departmentLabel, gbc);
 
         gbc.gridx = 1;
-        JTextField departmentField = new JTextField(20); // Reduce the width
+        departmentField = new JTextField(20); // Reduce the width
         departmentField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         panel.add(departmentField, gbc);
 
@@ -62,30 +87,8 @@ public class AdminProfessorsPanel extends JPanel {
         addProfessorButton.setPreferredSize(new Dimension(200, 40)); // Increase the button height
         panel.add(addProfessorButton, gbc);
 
-        addProfessorButton.addActionListener(e -> {
-            try {
-                String professorName = professorNameField.getText();
-                String department = departmentField.getText();
-
-                // Validate input and handle exceptions
-                if (professorName.isEmpty() || department.isEmpty()) {
-                    throw new IllegalArgumentException("All fields must be filled.");
-                }
-
-                // Call the addProfessor function and provide user feedback
-                admin.addProfessor(university, professorName, department);
-
-                // Display a success message using an output dialog
-                JOptionPane.showMessageDialog(panel, "Professor added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-
-                // Clear the input fields
-                professorNameField.setText("");
-                departmentField.setText("");
-            } catch (Exception ex) {
-                // Handle exceptions
-                JOptionPane.showMessageDialog(panel, "An error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
+        addProfessorButton.setActionCommand("Add Professor Button");
+        addProfessorButton.addActionListener(controller);
 
         return panel;
     }
@@ -97,7 +100,7 @@ public class AdminProfessorsPanel extends JPanel {
         gbc.insets = new Insets(5, 5, 5, 5); // Reduce the margin
 
         // Professor Name
-        JLabel professorNameLabel = new JLabel("Professor Name:");
+        JLabel professorNameLabel = new JLabel("Professor ID:");
         professorNameLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -106,7 +109,7 @@ public class AdminProfessorsPanel extends JPanel {
 
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        JTextField professorNameField = new JTextField(20); // Reduce the width
+        professorNameField = new JTextField(20); // Reduce the width
         professorNameField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         panel.add(professorNameField, gbc);
 
@@ -121,28 +124,8 @@ public class AdminProfessorsPanel extends JPanel {
         removeProfessorButton.setPreferredSize(new Dimension(200, 40)); // Increase the button height
         panel.add(removeProfessorButton, gbc);
 
-        removeProfessorButton.addActionListener(e -> {
-            try {
-                String professorName = professorNameField.getText();
-
-                if (professorName.isEmpty()) {
-                    JOptionPane.showMessageDialog(panel, "Professor Name is empty.", "Error", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    // Call the removeProfessor function
-                    boolean professorRemoved = admin.removeProfessor(university, professorName);
-
-                    if (professorRemoved) {
-                        JOptionPane.showMessageDialog(panel, "Professor removed successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        professorNameField.setText(""); // Clear the input field
-                    } else {
-                        JOptionPane.showMessageDialog(panel, "Professor not found.", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            } catch (Exception ex) {
-                // Handle other exceptions
-                JOptionPane.showMessageDialog(panel, "An error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
+        removeProfessorButton.setActionCommand("Remove Professor Button");
+        removeProfessorButton.addActionListener(controller);
 
         return panel;
     }

@@ -9,10 +9,6 @@ public class ClassTiming {
         this.time = time;
     }
 
-    public void setDayOfWeek(String dayOfWeek) {
-        this.dayOfWeek = dayOfWeek;
-    }
-
     public void setTime(String time) {
         this.time = time;
     }

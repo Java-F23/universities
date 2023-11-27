@@ -72,23 +72,25 @@ public class Course {
     }
 
     public Semester findSemesterByName(String semesterName) {
-        for (Semester semester : offeredInSemesters) {
-            if (semester.getName().equals(semesterName)) {
-                return semester;
-            }
-        }
-        return null;
+        return offeredInSemesters.stream()
+                .filter(semester -> semester.getName().equals(semesterName))
+                .findFirst()
+                .orElse(null);
     }
 
     public Class findClassByStudent(Student student) {
-        for (Class class1 : classes) {
-            for (StudentGrade studentGrade : class1.getStudentCourseEnrollment().getStudentGrades()) {
-                if (studentGrade.getStudent().equals(student)) {
-                    return class1;
-                }
-            }
-        }
-        return null;
+        return classes.stream()
+                .filter(class1 -> class1.getStudentCourseEnrollment().getStudentGrades().stream()
+                        .anyMatch(studentGrade -> studentGrade.getStudent().equals(student)))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Class findClass(int sectionNumber) {
+        return classes.stream()
+                .filter(class1 -> class1.getSectionNumber() == sectionNumber)
+                .findFirst()
+                .orElse(null);
     }
 
 }

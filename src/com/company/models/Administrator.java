@@ -1,9 +1,6 @@
 package com.company.models;
-
-import com.company.UniversityManager;
-
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Optional;
 
 public class Administrator {
     private int adminID;
@@ -25,9 +22,10 @@ public class Administrator {
     }
 
     //Admins can add a section to a specific course
+
     public String addClass(University university, String courseName, String semesterName, int professorID, int maxClassCapacity, Schedule schedule) {
         try {
-            Course course = university.findCourseByName(courseName);
+            Course course = university.getCourseByName(courseName);
             Semester semester = university.findSemesterByName(semesterName);
             Professor professor = university.findProfessorByID(professorID);
 
@@ -41,50 +39,51 @@ public class Administrator {
                 return "Professor does not exist";
             }
 
-            int sectionNumber = 0;
-            for (Class class1 : course.getClasses()) {
-                if (class1.getSemester().getName().equals(semesterName)) {
-                    sectionNumber = class1.getSectionNumber();
-                    return "Able to add class to semester: " + semesterName;
-                } else {
-                    return "Created first section for the course: " + courseName;
-                }
+            // Check if a class with the same course and semester already exists
+            Optional<Class> existingClass = course.getClasses().stream()
+                    .filter(class1 -> class1.getSemester().getName().equals(semesterName))
+                    .findFirst();
+
+            if (existingClass.isPresent()) {
+                int sectionNumber = existingClass.get().getSectionNumber() + 1;
+                Class newClass = new Class(course, sectionNumber, semester, professor, maxClassCapacity, schedule);
+                course.addClass(newClass);
+                university.addClass(newClass, course);
+                return "Added a new section to the course: " + courseName;
+            } else {
+                // No existing class, create a new one
+                int sectionNumber = 1;
+                Class newClass = new Class(course, sectionNumber, semester, professor, maxClassCapacity, schedule);
+                course.addClass(newClass);
+                university.addClass(newClass, course);
+                return "Class added successfully";
             }
 
-            sectionNumber++;
-
-            Class newClass = new Class(course, sectionNumber, semester, professor, maxClassCapacity, schedule);
-            course.addClass(newClass);
-            university.addClass(newClass, course);
-
-            return "Class added successfully";
         } catch (Exception e) {
             return "An error occurred: " + e.getMessage();
         }
     }
 
-
     public String updateCourse(University university, String oldCourseName, String newCourseName, String department, String description) {
         try {
-            boolean foundCourse = false;
-            for (Course course : university.getCourses()) {
-                if (course.getName().equals(oldCourseName)) {
-                    course.setName(newCourseName);
-                    course.setDepartment(department);
-                    course.setDescription(description);
-                    foundCourse = true;
-                    return "Course updated";
-                }
-            }
+            // Check if the course exists
+            Optional<Course> existingCourse = university.getCourses().stream()
+                    .filter(course -> course.getName().equals(oldCourseName))
+                    .findFirst();
 
-            if (!foundCourse) {
+            if (existingCourse.isPresent()) {
+                // Update the course details
+                Course course = existingCourse.get();
+                course.setName(newCourseName);
+                course.setDepartment(department);
+                course.setDescription(description);
+                return "Course updated";
+            } else {
                 return "Course not found";
             }
         } catch (Exception e) {
             return "An error occurred: " + e.getMessage();
         }
-
-        return ""; // Return an empty string if no specific message is returned
     }
 
     public void addProfessor(University university, String professorName, String department) {
@@ -96,13 +95,13 @@ public class Administrator {
         }
     }
 
-    public boolean removeProfessor(University university, String professorName) {
+    public boolean removeProfessor(University university, int professorID) {
         try {
             boolean foundProfessor = false;
             Iterator<Professor> professorIterator = university.getProfessors().iterator();
             while (professorIterator.hasNext()) {
                 Professor professor = professorIterator.next();
-                if (professor.getName().equals(professorName)) {
+                if (professor.getProfessorID() == professorID) {
                     professorIterator.remove();
                     foundProfessor = true;
                     System.out.println("Professor removed");
@@ -123,67 +122,71 @@ public class Administrator {
 
     public String enrollStudent(University university, String studentName, String courseName, String semester) {
         try {
-            boolean courseExists = false;
-            boolean isStudentAlreadyEnrolled = false;
+            // Check if the course exists
+            Optional<Course> existingCourse = university.getCourses().stream()
+                    .filter(course -> course.getName().equals(courseName))
+                    .findFirst();
 
-            int studentID = university.getNewStudentID();
+            if (existingCourse.isPresent()) {
+                Course course = existingCourse.get();
 
-            // Enroll the student in a class
-            Student student = new Student(studentName, university.getName(), studentID);
-            university.addStudent(student);
+                // Check if the class exists for the specified semester
+                Optional<Class> existingClass = course.getClasses().stream()
+                        .filter(class1 -> class1.getSemester().getName().equals(semester))
+                        .findFirst();
 
-            for (Course course : university.getCourses()) {
-                if (course.getName().equals(courseName)) {
-                    courseExists = true;
-                    for (Class class1 : course.getClasses()) {
-                        if (class1.getSemester().getName().equals(semester)) {
-                            if (!class1.isFull()) {
-                                class1.enrollStudent(student);
-                                return "Enrollment successful";
-                            } else {
-                                throw new IllegalStateException("Class is full");
-                            }
-                        }
+                if (existingClass.isPresent()) {
+                    Class class1 = existingClass.get();
+
+                    // Check if the class is not full
+                    if (!class1.isFull()) {
+                        // Enroll the student in the class
+                        int studentID = university.getNewStudentID();
+                        Student student = new Student(studentName, university.getName(), studentID);
+                        university.addStudent(student);
+                        class1.enrollStudent(student);
+                        return "Enrollment successful";
+                    } else {
+                        return "Class is full";
                     }
+                } else {
+                    throw new IllegalArgumentException("Class not found in the specified semester");
                 }
-            }
-
-            if (!courseExists) {
+            } else {
                 throw new IllegalArgumentException("Course not found");
             }
         } catch (Exception e) {
             // Log or handle the exception as needed
             return "An error occurred: " + e.getMessage();
         }
-        return ""; // Return an empty string if no specific message is returned
     }
-
 
     public String editCapacity(University university, String courseName, String semester, int capacity, int sectionNumber) {
         try {
-            boolean courseExists = false;
+            Optional<Course> existingCourse = university.getCourses().stream()
+                    .filter(course -> course.getName().equals(courseName))
+                    .findFirst();
 
-            for (Course course : university.getCourses()) {
-                if (course.getName().equals(courseName)) {
-                    courseExists = true;
-                    for (Class class1 : course.getClasses()) {
-                        if (class1.getSectionNumber() == sectionNumber && class1.getSemester().getName().equals(semester)) {
-                            class1.setMaxClassCapacity(capacity);
-                            return "Capacity updated";
-                        }
-                    }
+            if (existingCourse.isPresent()) {
+                Course course = existingCourse.get();
+
+                Optional<Class> existingClass = course.getClasses().stream()
+                        .filter(class1 -> class1.getSectionNumber() == sectionNumber && class1.getSemester().getName().equals(semester))
+                        .findFirst();
+
+                if (existingClass.isPresent()) {
+                    Class class1 = existingClass.get();
+                    class1.setMaxClassCapacity(capacity);
+                    return "Capacity updated";
+                } else {
+                    return "Section not found";
                 }
-            }
-
-            if (!courseExists) {
+            } else {
                 return "Course does not exist";
             }
-
-            return "Section not found";
         } catch (Exception e) {
             return "An error occurred: " + e.getMessage();
         }
     }
-
 
 }

@@ -12,12 +12,40 @@ public class AdminStudentsPanel extends JPanel {
     private AdminHomePanel parentPanel;
     private University university;
     Administrator admin;
+    private AdminStudentsPanelController controller;
+    private JTextField studentNameField;
+    private JTextField courseNameField;
+    private JTextField semesterField;
 
-    public AdminStudentsPanel(AdminHomePanel parentPanel, University university, Administrator admin) {
+
+    public AdminStudentsPanel(AdminHomePanel parentPanel, University university, Administrator admin, AdminStudentsPanelController controller) {
         this.parentPanel = parentPanel;
         this.university = university;
         this.admin = admin;
+        this.controller = controller;
         setLayout(new BorderLayout());
+    }
+
+    public JTextField getStudentNameField() {
+        return studentNameField;
+    }
+
+    public JTextField getCourseNameField() {
+        return courseNameField;
+    }
+
+    public JTextField getSemesterField() {
+        return semesterField;
+    }
+
+    public void clearEnrollButtonFields(){
+        studentNameField.setText("");
+        courseNameField.setText("");
+        semesterField.setText("");
+    }
+
+    public void displayMessage(String message, String title, int messageType) {
+        JOptionPane.showMessageDialog(this, message, title, messageType);
     }
 
     public JPanel getStudentsPanel() {
@@ -63,7 +91,7 @@ public class AdminStudentsPanel extends JPanel {
 
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        JTextField studentNameField = new JTextField(20);
+        studentNameField = new JTextField(20);
         studentNameField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         panel.add(studentNameField, gbc);
 
@@ -75,7 +103,7 @@ public class AdminStudentsPanel extends JPanel {
         panel.add(courseNameLabel, gbc);
 
         gbc.gridx = 1;
-        JTextField courseNameField = new JTextField(20);
+        courseNameField = new JTextField(20);
         courseNameField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         panel.add(courseNameField, gbc);
 
@@ -87,7 +115,7 @@ public class AdminStudentsPanel extends JPanel {
         panel.add(semesterLabel, gbc);
 
         gbc.gridx = 1;
-        JTextField semesterField = new JTextField(20);
+        semesterField = new JTextField(20);
         semesterField.setFont(new Font("SansSerif", Font.PLAIN, 18));
         panel.add(semesterField, gbc);
 
@@ -102,32 +130,8 @@ public class AdminStudentsPanel extends JPanel {
         enrollButton.setPreferredSize(new Dimension(200, 40));
         panel.add(enrollButton, gbc);
 
-        enrollButton.addActionListener(e -> {
-            String studentName = studentNameField.getText();
-            String courseName = courseNameField.getText();
-            String semester = semesterField.getText();
-
-            try {
-                if (studentName.isEmpty() || courseName.isEmpty() || semester.isEmpty()) {
-                    throw new IllegalArgumentException("All fields must be filled.");
-                }
-
-                String response = admin.enrollStudent(university, studentName, courseName, semester);
-
-                if(response.equals("Enrollment successful"))
-                JOptionPane.showMessageDialog(panel, "Student enrolled successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                else{
-                    JOptionPane.showMessageDialog(panel, response, "Error", JOptionPane.ERROR_MESSAGE);
-                }
-
-                // Clear input fields
-                studentNameField.setText("");
-                courseNameField.setText("");
-                semesterField.setText("");
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(panel, "An error occurred: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
+        enrollButton.setActionCommand("Enroll Button");
+        enrollButton.addActionListener(controller);
 
         return panel;
     }

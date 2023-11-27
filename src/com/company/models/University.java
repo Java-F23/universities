@@ -1,30 +1,34 @@
 package com.company.models;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class University {
     private String name;
     private String location;
     private ArrayList<Class> classes;
     private ArrayList<Course> courses;
-    private ArrayList<StudentCourseEnrollment> studentCourseEnrollments;
     private ArrayList<Professor> professors;
     private ArrayList<Student> students;
-    private ArrayList<Administrator> administrators;
+    private ArrayList<Administrator> admins;
     private ArrayList<Semester> semesters;
+    private ArrayList<ClassTiming> classTimings;
+    private ArrayList<Schedule> schedules;
 
     public University(String name, String location) {
         this.name = name;
         this.location = location;
         this.classes = new ArrayList<>();
         this.courses = new ArrayList<>();
-        this.studentCourseEnrollments = new ArrayList<>();
         this.professors = new ArrayList<>();
         this.students = new ArrayList<>();
-        this.administrators = new ArrayList<>();
         this.semesters = new ArrayList<>();
+        this.admins = new ArrayList<>();
+        this.classTimings = new ArrayList<>();
+        this.schedules = new ArrayList<>();
     }
-
     public String getName() {
         return name;
     }
@@ -49,10 +53,6 @@ public class University {
         return classes;
     }
 
-    public ArrayList<StudentCourseEnrollment> getStudentCourseEnrollments() {
-        return studentCourseEnrollments;
-    }
-
     public ArrayList<Course> getCourses() {
         return courses;
     }
@@ -65,93 +65,97 @@ public class University {
         return students;
     }
 
+    public void addAdmin(Administrator admin) {
+        admins.add(admin);
+    }
+
+    public void addClassTiming(ClassTiming classTiming) {
+        classTimings.add(classTiming);
+    }
+
+    public void addSchedule(Schedule schedule) {
+        schedules.add(schedule);
+    }
+
+    public ClassTiming getClassTiming(String day, String time) {
+        return classTimings.stream()
+                .filter(classTiming -> classTiming.getDayOfWeek().equals(day) && classTiming.getTime().equals(time))
+                .peek(ct -> System.out.println("Class timing found"))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Schedule getSchedule(ClassTiming classTiming, String location) {
+        return schedules.stream()
+                .filter(schedule -> schedule.getClassTimings().equals(classTiming) && schedule.getLocation().equals(location))
+                .findFirst()
+                .orElse(null);
+    }
+
     //Students can access a list of available courses, displaying course names and departments.
     public ArrayList<Course> getAvailableCourses(String semester) {
-        ArrayList<Course> availableCourses = new ArrayList<>();
-
         try {
-            boolean semesterFound = false;
-
             // Check if the provided semester is valid
-            for (Semester sem : getSemesters()) {
-                if (sem.getName().equals(semester)) {
-                    semesterFound = true;
-                    break;
-                }
-            }
+            boolean semesterFound = getSemesters().stream().anyMatch(sem -> sem.getName().equals(semester));
 
             if (!semesterFound) {
-                return availableCourses; // Return an empty list of available courses
+                return new ArrayList<>(); // Return an empty ArrayList of available courses
             }
 
-            boolean courseFound = false;
-            for (Course course : getCourses()) {
-                boolean courseAdded = false; // Flag to track if the course has been added
-                for (Semester semester1 : course.getOfferedInSemesters()) {
-                    if (semester1.getName().equals(semester)) {
-                        courseFound = true; // At least one course found
-                        if (!courseAdded) { // Check if the course hasn't been added yet
-                            availableCourses.add(course);
-                            courseAdded = true; // Set the flag to true to mark the course as added
-                        }
-                    }
-                }
-            }
-
-            if (!courseFound) {
-                System.out.println("No courses are offered in the provided semester.");
-            }
+            return getCourses().stream()
+                    .filter(course -> course.getOfferedInSemesters().stream().anyMatch(sem -> sem.getName().equals(semester)))
+                    .distinct() // Ensure distinct courses
+                    .collect(Collectors.toCollection(ArrayList::new));
         } catch (Exception e) {
             System.out.println("An error occurred: " + e.getMessage());
+            return new ArrayList<>();
         }
-        return availableCourses;
     }
 
     //"Students can search for courses using filters like department and professor.
     //The system displays matching courses."
     public ArrayList<Course> searchCourseByDepartment(String department) {
-        ArrayList<Course> matchingCourses = new ArrayList<>();
         try {
-            for (Course course : getCourses()) {
-                if (course.getDepartment().equals(department)) {
-                    matchingCourses.add(course);
-                    System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n");
-                }
-            }
+            return getCourses().stream()
+                    .filter(course -> course.getDepartment().equals(department))
+                    .peek(course -> System.out.println("The course name is " + course.getName() +
+                            ", and the department is " + course.getDepartment() + "\n"))
+                    .collect(Collectors.toCollection(ArrayList::new));
         } catch (Exception e) {
             System.out.println("An error occurred: " + e.getMessage());
+            return new ArrayList<>();
         }
-        return matchingCourses;
     }
 
     public ArrayList<Course> searchCourseByProfessor(String professorName) {
-        ArrayList<Course> matchingCourses = new ArrayList<>();
-        for (Course course : getCourses()) {
-            for (Class aClass : course.getClasses()) {
-                try {
-                    if (aClass.getProfessor().getName().equals(professorName)) {
-                        System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n");
-                        matchingCourses.add(course);
-                        break;
-                    }
-                } catch (NullPointerException e) {
-                    System.err.println("Error: Professor name is null for class in course " + course.getName());
-                }
-            }
+        try {
+            return getCourses().stream()
+                    .filter(course -> course.getClasses().stream()
+                            .anyMatch(aClass -> {
+                                try {
+                                    return aClass.getProfessor() != null && aClass.getProfessor().getName().equals(professorName);
+                                } catch (NullPointerException e) {
+                                    System.err.println("Error: Professor name is null for class in course " + course.getName());
+                                    return false;
+                                }
+                            }))
+                    .peek(course -> System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n"))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
+            return new ArrayList<>();
         }
-
-        return matchingCourses;
     }
 
     //Students can access a detailed page for each course, displaying course descriptions and schedules.
     public void getCourseDetails(String courseName) {
         try {
-            for (Course course : getCourses()) {
-                if (course.getName().equals(courseName)) {
-                    System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n");
-                    System.out.println("The course description is " + course.getDescription() + "\n");
-                }
-            }
+            getCourses().stream()
+                    .filter(course -> course.getName().equals(courseName))
+                    .forEach(course -> {
+                        System.out.println("The course name is " + course.getName() + ", and the department is " + course.getDepartment() + "\n");
+                        System.out.println("The course description is " + course.getDescription() + "\n");
+                    });
         } catch (Exception e) {
             System.out.println("An error occurred: " + e.getMessage());
         }
@@ -160,35 +164,60 @@ public class University {
     //Students can access the course schedule for a specific semester, including class timings and locations.
     public void getCourseSchedule(String semester) {
         try {
-            for (Course course : getCourses()) {
-                for (Class class1 : course.getClasses()) {
-                    if (class1.getSemester().getName().equals(semester)) {
-                        System.out.println("The course name is " + course.getName() + ": \n");
-                        System.out.println("The semester is " + class1.getSemester().getName() + ", the class timings are " +  class1.getSchedule().getClassTimings().getDayOfWeek() + " " + class1.getSchedule().getClassTimings().getTime() + ", and the location is " + class1.getSchedule().getLocation() + "\n");
-                    }
-                }
-            }
+            getCourses().stream()
+                    .flatMap(course -> course.getClasses().stream())
+                    .filter(class1 -> class1.getSemester().getName().equals(semester))
+                    .forEach(class1 -> {
+                        System.out.println("The course name is " + class1.getCourse().getName() + ": \n");
+                        System.out.println("The semester is " + class1.getSemester().getName() +
+                                ", the class timings are " + class1.getSchedule().getClassTimings().getDayOfWeek() +
+                                " " + class1.getSchedule().getClassTimings().getTime() +
+                                ", and the location is " + class1.getSchedule().getLocation() + "\n");
+                    });
         } catch (Exception e) {
             System.out.println("An error occurred: " + e.getMessage());
         }
     }
     // Find professor by name
     public Professor findProfessorByName(String professorName) {
-        for (Professor professor : professors) {
-            if (professor.getName().equals(professorName)) {
-                return professor;
-            }
-        }
-        return null; // Professor not found
+        return professors.stream()
+                .filter(professor -> professor.getName().equals(professorName))
+                .findFirst()
+                .orElse(null);
     }
 
     public Professor findProfessorByID(int professorID) {
-        for (Professor professor : professors) {
-            if (professor.getProfessorID() == professorID) {
-                return professor;
-            }
-        }
-        return null; // Professor not found
+        return professors.stream()
+                .filter(professor -> professor.getProfessorID() == professorID)
+                .findFirst()
+                .orElseGet(() -> {
+                    System.out.println("Professor not found");
+                    return null;
+                });
+    }
+
+    public Semester findSemesterByName(String semesterName) {
+        return semesters.stream()
+                .filter(semester -> semester.getName().equals(semesterName))
+                .findFirst()
+                .orElseGet(() -> {
+                    System.out.println("Semester not found");
+                    return null;
+                });
+    }
+
+    public Course getCourseByName(String courseName) {
+        return courses.stream()
+                .filter(course -> course.getName().equals(courseName))
+                .findFirst()
+                .orElse(null); // Course not found
+    }
+
+    public Student findStudentByID(int studentID) {
+        return students.stream()
+                .filter(student -> student.getStudentID() == studentID)
+                .findFirst()
+                .orElse(null); // Student not found
     }
 
     // Add student to university
@@ -208,24 +237,12 @@ public class University {
         }
     }
 
-    public Course findCourseByName(String courseName) {
-        for (Course course : courses) {
-            if (course.getName().equals(courseName)) {
-                return course;
-            }
+    public void removeCourse(Course course) {
+        if (course != null) {
+            this.courses.remove(course);
+        } else {
+            System.out.println("Cannot remove a null course from the university.");
         }
-        System.out.println("Course not found");
-        return null; // Course not found
-    }
-
-    public Semester findSemesterByName(String semesterName) {
-        for (Semester semester : semesters) {
-            if (semester.getName().equals(semesterName)) {
-                return semester;
-            }
-        }
-        System.out.println("Semester not found");
-        return null; // Semester not found
     }
 
     public void addClass(Class class1, Course course) {
@@ -248,25 +265,6 @@ public class University {
         } else {
             System.out.println("Cannot add a null professor to the university.");
         }
-    }
-
-    public Student findStudentByID(int studentID) {
-        for (Student student : students) {
-            if (student.getStudentID() == studentID) {
-                return student;
-            }
-        }
-        return null; // Student not found
-    }
-
-    //get course by name
-    public Course getCourseByName(String courseName) {
-        for (Course course : courses) {
-            if (course.getName().equals(courseName)) {
-                return course;
-            }
-        }
-        return null; // Course not found
     }
 
     public int getNewStudentID(){

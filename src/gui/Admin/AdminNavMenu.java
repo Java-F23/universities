@@ -17,9 +17,13 @@ public class AdminNavMenu extends JMenuBar {
     private AdminProfessorsPanel adminProfessorsPanel;
     private CoursesPanel coursesPanel;
     private AdminStudentsPanel adminStudentsPanel;
+    private AdminCoursesPanelController adminCoursesPanelController;
+    private AdminProfessorsPanelController adminProfessorsPanelController;
+    private AdminStudentsPanelController adminStudentsPanelController;
+    private AdminNavMenuController controller;
 
     public AdminNavMenu(landing app, AdminHomePanel adminHomePanel, University university, AdminCoursesPanel adminCoursesPanel,
-                        AdminProfessorsPanel adminProfessorsPanel, AdminStudentsPanel adminStudentsPanel) {
+                        AdminProfessorsPanel adminProfessorsPanel, AdminStudentsPanel adminStudentsPanel, AdminNavMenuController controller) {
         this.app = app;
         this.university = university;
         this.adminHomePanel = adminHomePanel;
@@ -27,6 +31,7 @@ public class AdminNavMenu extends JMenuBar {
         this.adminProfessorsPanel = adminProfessorsPanel;
         this.adminStudentsPanel = adminStudentsPanel;
         this.coursesPanel = coursesPanel;
+        this.controller = controller;
 
         JMenuBar menuBar = new JMenuBar();
 
@@ -101,92 +106,30 @@ public class AdminNavMenu extends JMenuBar {
         // Set the menu bar for the main frame
         app.setJMenuBar(menuBar);
 
-        addClass.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                adminHomePanel.switchToPanel(adminCoursesPanel.createAddClassPanel());
-            }
-        });
+        addClass.setActionCommand("Add Class");
+        editClass.setActionCommand("Edit Class Capacity");
+        viewCoursesItem.setActionCommand("View Courses");
+        addCourseItem.setActionCommand("Add Course");
+        changeCourseDetailsItem.setActionCommand("Change Course Details");
+        viewProfessorsItem.setActionCommand("View Professors");
+        addProfessorItem.setActionCommand("Add Professor");
+        removeProfessorItem.setActionCommand("Remove Professor");
+        viewStudentsItem.setActionCommand("View Students");
+        enrollStudentItem.setActionCommand("Enroll Student");
+        generateReportItem.setActionCommand("Generate Report");
+        logoutMenu.setActionCommand("Logout");
 
-        // Add action listeners to menu items
-        viewCoursesItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                adminHomePanel.switchToPanel(adminCoursesPanel.viewCoursesPanel());
-            }
-        });
-
-        addCourseItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                adminHomePanel.switchToPanel(adminCoursesPanel.addCoursePanel());
-            }
-        });
-
-        changeCourseDetailsItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                adminHomePanel.switchToPanel(adminCoursesPanel.updateCourseDetailsPanel());
-            }
-        });
-
-        editClass.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                adminHomePanel.switchToPanel(adminCoursesPanel.editCapacityPanel());
-            }
-        });
-
-        viewProfessorsItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                adminHomePanel.switchToPanel(adminProfessorsPanel.getProfessorsPanel());
-            }
-        });
-
-        addProfessorItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                adminHomePanel.switchToPanel(adminProfessorsPanel.createAddProfessorPanel());
-            }
-        });
-
-        removeProfessorItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                adminHomePanel.switchToPanel(adminProfessorsPanel.createRemoveProfessorPanel());
-            }
-        });
-
-        viewStudentsItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                adminHomePanel.switchToPanel(adminStudentsPanel.getStudentsPanel());
-            }
-        });
-
-        enrollStudentItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Implement the action to enroll a student
-                adminHomePanel.switchToPanel(adminStudentsPanel.enrollStudentPanel());
-            }
-        });
-
-        generateReportItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                adminHomePanel.switchToPanel(adminStudentsPanel.generateReportPanel());
-            }
-        });
-
-
-        logoutMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                app.switchToLandingFrame();
-                adminHomePanel.switchToHomePage();
-            }
-        });
+        addClass.addActionListener(controller);
+        editClass.addActionListener(controller);
+        viewCoursesItem.addActionListener(controller);
+        addCourseItem.addActionListener(controller);
+        changeCourseDetailsItem.addActionListener(controller);
+        viewProfessorsItem.addActionListener(controller);
+        addProfessorItem.addActionListener(controller);
+        removeProfessorItem.addActionListener(controller);
+        viewStudentsItem.addActionListener(controller);
+        enrollStudentItem.addActionListener(controller);
+        generateReportItem.addActionListener(controller);
+        logoutMenu.addActionListener(controller);
     }
 }

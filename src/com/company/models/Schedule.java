@@ -1,7 +1,5 @@
 package com.company.models;
 
-import java.util.ArrayList;
-
 public class Schedule {
     private ClassTiming classTimings;
     private String location;

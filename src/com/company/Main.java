@@ -237,10 +237,10 @@ public class Main {
                             break;
                         case 5:
                             // Remove Professor - implement this logic
-                            System.out.println("Enter the name of the professor: ");
-                            String professorName2 = scanner.nextLine();
+                            System.out.println("Enter professor ID: ");
+                            int professorID1 = scanner.nextInt();
 
-                            admin.removeProfessor(findUni, professorName2);
+                            admin.removeProfessor(findUni, professorID1);
                             break;
                         case 6:
                             // Enroll Student - implement this logic
@@ -440,7 +440,7 @@ public class Main {
 
                         Student student7 = university.findStudentByID(studentID2); //find student by ID in
 
-                        Course course5 = university.findCourseByName(courseName8); //find course by name in
+                        Course course5 = university.getCourseByName(courseName8); //find course by name in
                         Class class8 = course5.findClassByStudent(student7); //find class by student in course
                         if(class8 == null){
                             System.out.println("Class not found.");
@@ -476,7 +476,7 @@ public class Main {
 
                         Student student8 = university.findStudentByID(studentID3); //find student by ID in
 
-                        Course course6 = university.findCourseByName(courseName9); //find course by name in
+                        Course course6 = university.getCourseByName(courseName9); //find course by name in
 
                         Class class9 = course6.findClassByStudent(student8); //find class by student in course
 

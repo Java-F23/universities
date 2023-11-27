@@ -18,10 +18,12 @@ public class ProfNavMenu extends JMenuBar {
     private University university;
     private ProfessorHomePanel professorHomePanel;
     private ProfessorPanels professorPanels;
+    private ProfNavMenuController controller;
 
-    public ProfNavMenu(landing app, University university, ProfessorHomePanel professorHomePanel, ProfessorPanels professorPanels) {
+    public ProfNavMenu(landing app, University university, ProfessorHomePanel professorHomePanel, ProfessorPanels professorPanels, ProfNavMenuController controller) {
         this.app = app;
         this.university = university;
+        this.professorHomePanel = professorHomePanel;
 
         JMenuBar menuBar = new JMenuBar();
 
@@ -65,36 +67,14 @@ public class ProfNavMenu extends JMenuBar {
         // Set the menu bar for the main frame
         app.setJMenuBar(menuBar);
 
-        attendanceMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                professorHomePanel.switchToPanel(professorPanels.takeAttendancePanel());
-            }
-        });
+        attendanceMenu.setActionCommand("Attendance");
+        inputGradesMenu.setActionCommand("Grades");
+        logoutMenu.setActionCommand("Logout");
+        System.out.println("controller is " + controller);
+        attendanceMenu.addActionListener(controller);
+        inputGradesMenu.addActionListener(controller);
+        logoutMenu.addActionListener(controller);
 
-        inputGradesMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                List<String> gradeChoices = new ArrayList<>();
-                gradeChoices.add("A");
-                gradeChoices.add("A-");
-                gradeChoices.add("B+");
-                gradeChoices.add("B");
-                gradeChoices.add("B-");
-                gradeChoices.add("C+");
-                gradeChoices.add("C");
-                gradeChoices.add("C-");
-                gradeChoices.add("D");
-                professorHomePanel.switchToPanel(professorPanels.createGradeEntryPanel(gradeChoices));
-            }
-        });
-
-        logoutMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                app.switchToLandingFrame();
-                professorHomePanel.switchToHomePage();
-            }
-        });
+        System.out.println("ProfNavMenu initialized");
     }
 }
